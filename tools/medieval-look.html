@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medieval look</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Grenze+Gotisch:wght@400;600&family=UnifrakturMaguntia&family=Uncial+Antiqua&family=Almendra:ital,wght@0,400;0,700;1,400&family=EB+Garamond:wght@400;500&family=Alegreya:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #2a221b; --bg: #e9e1d2; --red: #a8432e; --blue: #2f4f8f; --gold: #c9a23a; --green: #5f8c5c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+  header, section > h2, section > p { max-width: 1240px; }
+  header { padding: 18px 24px 0; }
+  h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; }
+  header p, section > p { margin: 0; opacity: 0.75; }
+  section { padding: 18px 24px 4px; }
+  section > h2 { font-size: 17px; margin: 0 0 2px; font-weight: 650; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; padding: 12px 0 10px; max-width: 1240px; }
+  .card { background: #fffdf8; border: 1.5px solid #c9bda9; border-radius: 12px; overflow: hidden; }
+  .card .txt { padding: 9px 13px 12px; font-size: 14px; }
+  .card .txt b { display: block; font-size: 15px; }
+
+  /* ── Fonts: a mini timer panel in each pairing ── */
+  .type { background: #f3ead6; padding: 16px 16px 18px; border-bottom: 1.5px solid #c9bda9; text-align: center; }
+  .type .name { font-size: 27px; line-height: 1.1; margin-bottom: 10px; }
+  .type .label { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
+  .type .time { font-size: 64px; line-height: 1; margin: 2px 0 8px; }
+  .type .line { font-size: 16px; }
+  .type .btn { display: inline-block; margin-top: 10px; border: 2px solid var(--ink); border-radius: 999px; padding: 4px 18px; font-size: 16px; background: #fffaf0; }
+  .f1 .name, .f1 .label { font-family: 'IM Fell English SC', serif; } .f1 .time, .f1 .line, .f1 .btn { font-family: 'IM Fell English', serif; }
+  .f2 .name { font-family: 'UnifrakturMaguntia', serif; } .f2 .time, .f2 .label { font-family: 'Grenze Gotisch', serif; font-weight: 600; } .f2 .line, .f2 .btn { font-family: 'EB Garamond', serif; }
+  .f3 .name, .f3 .time, .f3 .label { font-family: 'Uncial Antiqua', serif; } .f3 .line, .f3 .btn { font-family: 'Alegreya', serif; } .f3 .time { font-size: 56px; }
+  .f4 .name, .f4 .time, .f4 .label { font-family: 'Almendra', serif; font-weight: 700; } .f4 .line, .f4 .btn { font-family: 'Almendra', serif; }
+  .initial { display: inline-block; background: var(--blue); color: #f6e9c8; padding: 0 5px; margin-right: 2px; border: 1px solid var(--ink); }
+
+  /* ── Names ── */
+  .names { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; padding: 12px 0 10px; max-width: 1240px; }
+  .nm { background: #f3ead6; border: 1.5px solid #c9bda9; border-radius: 12px; padding: 12px 14px; }
+  .nm .n { font-family: 'IM Fell English', serif; font-size: 26px; line-height: 1.1; }
+  .nm .n::first-letter { color: var(--red); }
+  .nm p { margin: 4px 0 0; font-size: 14px; opacity: 0.8; }
+
+  /* ── Backgrounds: the whole screen, small ── */
+  .mock { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 1.5px solid #c9bda9; font-family: 'IM Fell English', serif; }
+  .mock .cat { position: absolute; left: 3%; bottom: 3%; height: 84%; z-index: 2; }
+  .mock .panel { position: absolute; right: 5%; top: 14%; width: 33%; z-index: 3; text-align: center; padding: 6px 4px 9px; }
+  .mock .panel .l { font-family: 'IM Fell English SC', serif; font-size: 11px; letter-spacing: 0.1em; }
+  .mock .panel .t { font-size: 34px; line-height: 1; margin: 2px 0 4px; }
+  .mock .panel .b { display: inline-block; border: 1.5px solid var(--ink); border-radius: 999px; padding: 1px 10px; font-size: 11px; }
+  .mock .top { position: absolute; left: 4%; top: 4.5%; z-index: 3; font-family: 'IM Fell English SC', serif; font-size: 14px; }
+  .mock .deco { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; }
+
+  .bg1 { background: radial-gradient(ellipse at 50% 45%, #f4e9cf 55%, #e2cfa6 100%); }
+  .bg1 .panel { background: #f8efd9; border: 1.5px solid var(--red); box-shadow: inset 0 0 0 3px #f8efd9, inset 0 0 0 4px var(--blue); }
+  .bg2 { background: #f1e6cc; }
+  .bg2 .panel { background: #f8efd9; border: 2px solid var(--gold); }
+  .bg3 { background: #f2ead8; }
+  .bg3 .panel { background: #f7f1e3; border: 2px solid var(--ink); box-shadow: inset 0 0 0 3px #f7f1e3, inset 0 0 0 4px var(--ink); }
+  .bg4 { background: #ebe1cf; }
+  .bg4 .panel { background: #f3ebdc; border: 2px solid #8a4b33; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Making it read as medieval</h1>
+  <p>Three choices on one page: the type, the name, and what sits behind your beast. The cat is the calmer version: one fur colour, colour kept inside the lines, bare wood on the desk and stool.</p>
+</header>
+
+<section>
+  <h2>1. Type</h2>
+  <p>The same timer panel in four pairings. Your name idea is used as the sample.</p>
+  <div class="grid">
+    <div class="card"><div class="type f1"><div class="name">Productive Possum</div><div class="label">Focus</div><div class="time">25:00</div><div class="line"><span class="initial">W</span>orking on Deep work</div><div class="btn">Start focus</div></div>
+      <div class="txt"><b>Old print</b>IM Fell, cut from 1600s printing type. Quiet and very readable.</div></div>
+    <div class="card"><div class="type f2"><div class="name">Productive Possum</div><div class="label">Focus</div><div class="time">25:00</div><div class="line"><span class="initial">W</span>orking on Deep work</div><div class="btn">Start focus</div></div>
+      <div class="txt"><b>Blackletter</b>Gothic letters for the name and timer, plain Garamond for everything else.</div></div>
+    <div class="card"><div class="type f3"><div class="name">Productive Possum</div><div class="label">Focus</div><div class="time">25:00</div><div class="line"><span class="initial">W</span>orking on Deep work</div><div class="btn">Start focus</div></div>
+      <div class="txt"><b>Uncial</b>Round monastic letters, older and more storybook. Alegreya for the rest.</div></div>
+    <div class="card"><div class="type f4"><div class="name">Productive Possum</div><div class="label">Focus</div><div class="time">25:00</div><div class="line"><span class="initial">W</span>orking on Deep work</div><div class="btn">Start focus</div></div>
+      <div class="txt"><b>Calligraphic</b>Almendra throughout: pen-written and a little playful.</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>2. Name</h2>
+  <p>A few ideas that fit a medieval study with lots of odd beasts. I haven't checked domains yet.</p>
+  <div class="names">
+    <div class="nm"><div class="n">Productive Possum</div><p>Your idea. Friendly and alliterative, with a possum as the lead beast.</p></div>
+    <div class="nm"><div class="n">Scriptorium</div><p>The quiet room where medieval scribes worked. Your desk becomes one.</p></div>
+    <div class="nm"><div class="n">Marginalia</div><p>The odd little beasts drawn in the margins of old books, keeping you company.</p></div>
+    <div class="nm"><div class="n">Snail &amp; Quill</div><p>Snails were the favourite beast of medieval margins: slow, steady, never stopping.</p></div>
+    <div class="nm"><div class="n">Bestiarium</div><p>Latin for a book of beasts, which is what you build up as you work.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>3. Background</h2>
+  <p>The whole screen, small. Old-print type in all four so only the background changes.</p>
+  <div class="grid" id="bgs"></div>
+</section>
+
+<script>
+  const CAT = '../assets/art/cat-writing.svg';
+  const panel = '<div class="panel"><div class="l">Focus</div><div class="t">25:00</div><div class="b">Start focus</div></div>';
+  const topLine = '<div class="top">Productive Possum</div>';
+  const star = (x, y, r) => {
+    let d = '';
+    for (let i = 0; i < 12; i++) {
+      const a = (Math.PI / 6) * i - Math.PI / 2, rr = i % 2 ? r * 0.42 : r;
+      d += (i ? 'L' : 'M') + (x + rr * Math.cos(a)).toFixed(1) + ' ' + (y + rr * Math.sin(a)).toFixed(1);
+    }
+    return d + 'Z';
+  };
+  const rng = (s) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+
+  // 1. Manuscript page: ruled red and blue frame, a vine in the corner.
+  const deco1 = `<svg class="deco" viewBox="0 0 160 100" preserveAspectRatio="none">
+    <rect x="3" y="3" width="154" height="94" fill="none" stroke="#a8432e" stroke-width=".5"/>
+    <rect x="4.6" y="4.6" width="150.8" height="90.8" fill="none" stroke="#2f4f8f" stroke-width=".3"/></svg>
+    <svg class="deco" viewBox="0 0 160 100" preserveAspectRatio="xMinYMin meet">
+    <path d="M 6 92 C 10 70 4 50 9 30 C 12 18 18 12 26 7" fill="none" stroke="#5f8c5c" stroke-width=".7"/>
+    ${[[8, 78, -30], [6, 60, 30], [9, 42, -30], [12, 24, 40], [19, 11, -20]].map(([x, y, a]) => `<ellipse cx="${x}" cy="${y}" rx="2.4" ry="1.1" transform="rotate(${a} ${x} ${y})" fill="#7f9f6c"/><circle cx="${x + 2.6}" cy="${y + 2.2}" r=".8" fill="#c9a23a"/>`).join('')}</svg>`;
+
+  // 2. Bestiary panel: deep blue with gold stars behind the beast, green and red bands.
+  const r2 = rng(9);
+  const stars = Array.from({ length: 22 }, () => `<path d="${star(8 + r2() * 84, 10 + r2() * 72, 1.6 + r2() * .8)}" fill="#c9a23a"/>`).join('');
+  const deco2 = `<svg class="deco" viewBox="0 0 160 100" preserveAspectRatio="xMinYMid meet">
+    <rect x="4" y="6" width="92" height="88" fill="#2d4377"/>${stars}
+    <rect x="4" y="80" width="92" height="14" fill="#8fb07a"/>
+    <rect x="4" y="6" width="92" height="88" fill="none" stroke="#5f8c5c" stroke-width="2.4"/>
+    <rect x="6.4" y="8.4" width="87.2" height="83.2" fill="none" stroke="#a8432e" stroke-width="1.2"/></svg>`;
+
+  // 3. Woodcut print: plain paper inside a double black rule.
+  const deco3 = `<svg class="deco" viewBox="0 0 160 100" preserveAspectRatio="none">
+    <rect x="3" y="3" width="154" height="94" fill="none" stroke="#2a221b" stroke-width=".9"/>
+    <rect x="4.8" y="4.8" width="150.4" height="90.4" fill="none" stroke="#2a221b" stroke-width=".35"/></svg>`;
+
+  // 4. Church wall: plaster, a band of rosettes along the top, a pale green floor.
+  let ros = '';
+  for (let x = 6; x < 160; x += 14) ros += `<circle cx="${x}" cy="4" r="2" fill="none" stroke="#8d9bb0" stroke-width=".6"/><circle cx="${x}" cy="4" r=".6" fill="#8d9bb0"/>`;
+  const deco4 = `<svg class="deco" viewBox="0 0 160 100" preserveAspectRatio="none">
+    <ellipse cx="30" cy="30" rx="34" ry="16" fill="#e3d6bf" opacity=".7"/><ellipse cx="120" cy="60" rx="44" ry="20" fill="#e3d6bf" opacity=".6"/>
+    <rect width="160" height="8" fill="#ddd2bd"/>${ros}
+    <path d="M 0 86 C 40 82 80 88 120 84 C 140 82 150 85 160 83 L 160 100 L 0 100 Z" fill="#c4dccf"/></svg>`;
+
+  const BGS = [
+    ['bg1', deco1, 'Manuscript page', 'Parchment with a ruled red and blue frame and a vine in the corner. Calm, bookish.'],
+    ['bg2', deco2, 'Bestiary panel', 'Your beast in a framed panel of deep blue and gold stars. The most colourful.'],
+    ['bg3', deco3, 'Woodcut print', 'Plain paper in a double black rule. The quietest; the beast does all the work.'],
+    ['bg4', deco4, 'Church wall', 'Faded plaster, a band of rosettes and a pale green floor.'],
+  ];
+  document.getElementById('bgs').innerHTML = BGS.map(([cls, deco, title, note]) =>
+    `<div class="card"><div class="mock ${cls}">${deco}<img class="cat" src="${CAT}" alt="">${topLine}${panel}</div><div class="txt"><b>${title}</b>${note}</div></div>`).join('');
+</script>
+</body>
+</html>

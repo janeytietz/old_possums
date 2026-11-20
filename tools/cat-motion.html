@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cat at the desk: motion test</title>
+<style>
+  body { margin: 0; background: #F1E9D8; color: #211D18; font: 15px/1.45 Georgia, serif; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  figure { margin: 0; border: 2px solid #211D18; background: #F1E9D8; }
+  figure svg, figure img { display: block; width: 100%; height: auto; }
+  figcaption { border-top: 2px solid #211D18; padding: 6px 10px; }
+  .controls { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+  button { font: inherit; border: 2px solid #211D18; background: #F8F2E4; padding: 4px 12px; cursor: pointer; }
+  button.on { background: #211D18; color: #F1E9D8; }
+
+  /* Pivots are in the art's own 1024 x 1024 pixel space. */
+  #cat #arm, #cat #head, #cat #tail, #cat #lids { transform-box: view-box; }
+  #cat #arm { transform-origin: 524px 408px; }
+  #cat #head { transform-origin: 556px 334px; }
+  #cat #tail { transform-origin: 806px 642px; }
+  #cat #lids { display: inline; }
+  #cat #lids ellipse { transform-box: fill-box; transform-origin: 50% 0%; transform: scaleY(0); }
+
+  #cat.writing #arm { animation: write 2.6s ease-in-out infinite; }
+  #cat.writing #head { animation: head-look 10s steps(1, end) infinite; }
+  #cat.writing #tail { animation: flick 12s ease-in-out infinite; }
+  #cat.writing #lids ellipse { animation: blink 6.5s infinite; }
+
+  @keyframes write {
+    0%, 100% { transform: rotate(0deg) translate(0, 0); }
+    20% { transform: rotate(-1.6deg) translate(2px, -1px); }
+    40% { transform: rotate(0.4deg) translate(5px, 1px); }
+    60% { transform: rotate(-1.2deg) translate(8px, -1px); }
+    80% { transform: rotate(0.6deg) translate(3px, 1px); }
+  }
+  /* Held cutout poses: look down at the book, make one tiny correction, reset. */
+  @keyframes head-look {
+    0%, 58%, 100% { transform: rotate(0deg) translate(0, 0); }
+    62%, 76% { transform: rotate(2.4deg) translate(1px, 3px); }
+    80%, 86% { transform: rotate(1.2deg) translate(0, 2px); }
+    90% { transform: rotate(-.5deg) translate(0, 0); }
+  }
+  @keyframes flick { 0%, 78%, 100% { transform: rotate(0deg); } 84% { transform: rotate(-4deg); } 90% { transform: rotate(2deg); } 95% { transform: rotate(-0.5deg); } }
+  @keyframes blink { 0%, 94%, 100% { transform: scaleY(0); } 96.5% { transform: scaleY(1); } }
+  #cat.slow * { animation-duration: 10s !important; }
+  @media (prefers-reduced-motion: reduce) { #cat * { animation: none !important; } }
+</style></head>
+<body>
+<div class="wrap">
+  <div class="controls">
+    <button id="play" class="on">Moving</button>
+    <button id="still">Still</button>
+    <button id="slow">Slow motion</button>
+    <button id="parts">Show the pieces</button>
+  </div>
+  <figure><div id="host"></div><figcaption>Animated SVG (writing, occasional nod, tail flick, blink)</figcaption></figure>
+  <figure><img src="art-src/cat-desk-writing-v2-color.jpg" alt="Original draft"><figcaption>Original image</figcaption></figure>
+</div>
+<script>
+  const host = document.getElementById('host');
+  fetch('../assets/art/cat-desk.svg').then((r) => r.text()).then((t) => {
+    host.innerHTML = t;
+    const svg = host.querySelector('svg');
+    svg.id = 'cat';
+    svg.classList.add('writing');
+    const set = (on) => document.querySelectorAll('.controls button').forEach((b) => b.classList.toggle('on', b === on));
+    document.getElementById('play').onclick = (e) => { svg.className.baseVal = 'writing'; set(e.target); };
+    document.getElementById('still').onclick = (e) => { svg.className.baseVal = ''; set(e.target); };
+    document.getElementById('slow').onclick = (e) => { svg.className.baseVal = 'writing slow'; set(e.target); };
+    document.getElementById('parts').onclick = (e) => {
+      const tint = { tail: '#6E9179', head: '#BF3A22', arm: '#344F76' };
+      const showing = e.target.classList.toggle('on');
+      for (const [id, c] of Object.entries(tint)) {
+        svg.querySelector('#' + id).style.filter = showing ? `drop-shadow(0 0 0 ${c}) opacity(.75)` : '';
+        svg.querySelector('#' + id).style.outline = '';
+      }
+      svg.querySelector('#static').style.opacity = showing ? '.35' : '';
+    };
+  });
+</script>
+</body></html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Less AI-looking</title>
+<style>
+  body { margin: 0; background: #F1E9D8; color: #211D18; font: 15px/1.45 Georgia, serif; }
+  h2 { font-size: 17px; margin: 14px 14px 0; font-weight: normal; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; padding: 14px; }
+  figure { margin: 0; background: #F1E9D8; border: 2px solid #211D18; }
+  figure .pic { aspect-ratio: 1; overflow: hidden; position: relative; }
+  figure img { display: block; width: 100%; height: auto; }
+  .zoom figure .pic img { position: absolute; width: 300%; left: -105%; top: -12%; }
+  figcaption { padding: 6px 10px; border-top: 2px solid #211D18; }
+  figcaption b { display: block; font-weight: bold; }
+</style></head>
+<body>
+<h2>Whole picture</h2>
+<div class="row" id="whole"></div>
+<h2>Close-up on the face</h2>
+<div class="row zoom" id="zoom"></div>
+<script>
+  const OPTIONS = [
+    ['art-src/cat-desk-writing-v2-color.jpg', 'Original image', 'The draft from the image tool.'],
+    ['../assets/art/cat-desk-drawn.svg', 'Drawn (current)', 'Every stroke kept, smooth blended shading.'],
+    ['art-src/alternates/cat-desk-fewer.svg', '1. Fewer strokes', 'Hatching thinned unevenly: bare patches, face and whiskers kept.'],
+    ['art-src/alternates/cat-desk-washes.svg', '2. Hand-coloured', 'Fewer strokes, plus a few flat washes instead of smooth shading.'],
+    ['art-src/alternates/cat-desk-freehand.svg', '3. Freehand', 'All of that, and lines bent a little, as if drawn without a ruler.'],
+  ];
+  const fig = ([src, title, note]) => `<figure><div class="pic"><img src="${src}" alt=""></div><figcaption><b>${title}</b>${note}</figcaption></figure>`;
+  document.getElementById('whole').innerHTML = OPTIONS.map(fig).join('');
+  document.getElementById('zoom').innerHTML = OPTIONS.map(fig).join('');
+</script>
+</body></html>

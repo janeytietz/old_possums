@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type, round two</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Texturina:wght@400;600;700&family=Pirata+One&family=UnifrakturCook:wght@700&family=Fondamento&family=Metamorphous&family=MedievalSharp&family=Macondo&family=IM+Fell+DW+Pica&family=IM+Fell+Double+Pica+SC&family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:wght@500;600&family=Almendra+SC&family=Almendra&family=EB+Garamond:wght@400;500&family=Alegreya:wght@400;500&family=Grenze:wght@400;500&family=Grenze+Gotisch:wght@500;700&family=Eagle+Lake&family=Germania+One&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #2a221b; --bg: #e9e1d2; --red: #a8432e; --blue: #2f4f8f; --gold: #c9a23a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+  header { padding: 18px 24px 0; max-width: 1280px; }
+  h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; }
+  header p { margin: 0; opacity: 0.75; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; padding: 14px 24px 28px; max-width: 1280px; }
+  .card { background: #fffdf8; border: 1.5px solid #c9bda9; border-radius: 12px; overflow: hidden; }
+  .type { background: #f3ead6; padding: 14px 14px 16px; border-bottom: 1.5px solid #c9bda9; text-align: center; position: relative; }
+  .num { position: absolute; left: 10px; top: 8px; font: 600 13px system-ui; opacity: 0.55; }
+  .name { font-size: 28px; line-height: 1.1; margin-bottom: 8px; }
+  .label { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
+  .time { font-size: 62px; line-height: 1; margin: 2px 0 8px; }
+  .line { font-size: 16px; }
+  .btn { display: inline-block; margin-top: 10px; border: 2px solid var(--ink); border-radius: 999px; padding: 3px 16px; font-size: 16px; background: #fffaf0; }
+  .initial { display: inline-block; background: var(--blue); color: #f6e9c8; padding: 0 5px; margin-right: 2px; border: 1px solid var(--ink); }
+  .txt { padding: 9px 13px 12px; font-size: 14px; }
+  .txt b { display: block; font-size: 15px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Type, round two</h1>
+  <p>Ten more pairings, numbered so you can just tell me which ones you like. All are free Google fonts that are fine to use in an app.</p>
+</header>
+<main class="grid" id="grid"></main>
+<script>
+  // [title font, timer font, body font, label, note, extra css]
+  const PAIRS = [
+    ["'Texturina', serif; font-weight:700", "'Texturina', serif; font-weight:600", "'Texturina', serif", 'Readable gothic', 'Texturina: blackletter shapes tamed for reading. Gothic feel without the struggle.'],
+    ["'Pirata One', serif", "'Pirata One', serif", "'EB Garamond', serif", 'Bold blackletter', 'Pirata One for the name and timer: punchy, a little rough. Garamond for the rest.'],
+    ["'UnifrakturCook', serif", "'IM Fell DW Pica', serif", "'IM Fell DW Pica', serif", 'Blackletter name only', 'A heavy gothic name, with soft old-print numbers and text, so the app stays easy to read.'],
+    ["'Grenze Gotisch', serif; font-weight:700", "'Grenze', serif; font-weight:500", "'Grenze', serif", 'Gothic family', 'Grenze Gotisch for the name and its plainer sister Grenze for everything else. Very consistent.'],
+    ["'Fondamento', serif", "'Fondamento', serif", "'Fondamento', serif", 'Scribe’s hand', 'Fondamento throughout: written with a broad pen, slanted and lively.'],
+    ["'Eagle Lake', serif", "'Cormorant Garamond', serif; font-weight:600", "'Cormorant Garamond', serif; font-weight:500", 'Flourished title', 'A swashy pen-written name with an elegant Garamond timer.'],
+    ["'Metamorphous', serif", "'Metamorphous', serif", "'Alegreya', serif", 'Decorative medieval', 'Metamorphous: angular, carved-looking letters. Alegreya for the body.'],
+    ["'MedievalSharp', serif", "'MedievalSharp', serif", "'EB Garamond', serif", 'Storybook', 'MedievalSharp: the classic fairy-tale feel. The most familiar, maybe a bit expected.'],
+    ["'IM Fell Double Pica SC', serif", "'IM Fell DW Pica', serif", "'IM Fell DW Pica', serif", 'Old print, larger cut', 'A different cut of the IM Fell type from round one, with bigger, rounder numbers.'],
+    ["'Almendra SC', serif", "'Almendra', serif; font-weight:700", "'Almendra', serif", 'Small caps hand', 'Almendra small caps for the name, a softer version of round one’s Calligraphic.'],
+  ];
+  const card = ([t, tm, body, label, note], i) => `
+    <div class="card"><div class="type"><span class="num">${i + 1}</span>
+      <div class="name" style="font-family:${t}">Productive Possum</div>
+      <div class="label" style="font-family:${body}">Focus</div>
+      <div class="time" style="font-family:${tm}">25:00</div>
+      <div class="line" style="font-family:${body}"><span class="initial">W</span>orking on Deep work</div>
+      <div class="btn" style="font-family:${body}">Start focus</div></div>
+      <div class="txt"><b>${i + 1}. ${label}</b>${note}</div></div>`;
+  document.getElementById('grid').innerHTML = PAIRS.map(card).join('');
+</script>
+</body>
+</html>

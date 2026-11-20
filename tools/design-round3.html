@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starry vault layout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Texturina:wght@400;500;600;700&family=Fondamento&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #2a221b; --red: #a8432e; --gold: #d6b05c; --cream: #fbf1d8; --card: #f8efd9; --rose: #f2a48c; --text: 'Texturina', serif; --num: 'Fondamento', serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e6ded0; color: var(--ink); font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+  header { padding: 16px 24px 0; max-width: 1400px; }
+  h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; }
+  header p, section > p { margin: 0; opacity: 0.75; max-width: 1400px; }
+  section { padding: 18px 24px 6px; }
+  section > h2 { font-size: 17px; margin: 0 0 2px; font-weight: 650; }
+  .stack { display: grid; gap: 18px; padding: 12px 0 8px; max-width: 1400px; }
+  .card { background: #fffdf8; border: 1.5px solid #c9bda9; border-radius: 12px; overflow: hidden; }
+  .txt { padding: 9px 13px 12px; font-size: 14px; }
+  .txt b { display: block; font-size: 15px; }
+
+  .scr { position: relative; aspect-ratio: 16 / 10; overflow: hidden; container-type: inline-size; font-family: var(--text); color: var(--ink);
+         background: #24407a url('art-src/vault/vault-adobe-expanded.png') center / cover; }
+  .scr > * { position: absolute; }
+  .title { left: 2.4%; top: 2.8%; font-size: 2.3cqw; font-weight: 700; color: var(--cream); letter-spacing: 0.02em; text-shadow: 0 0.15cqw 0.4cqw rgba(0, 0, 0, 0.35); }
+  .topright { right: 2.4%; top: 2.6%; display: flex; gap: 0.7cqw; align-items: center; }
+  .pill { background: color-mix(in srgb, var(--card) 92%, transparent); border: 0.16cqw solid var(--ink); border-radius: 99cqw; padding: 0.3cqw 1.1cqw; font-size: 1.05cqw; font-weight: 600; display: flex; align-items: center; gap: 0.6cqw; }
+  .pill.tab { background: transparent; color: var(--cream); border-color: color-mix(in srgb, var(--cream) 70%, transparent); }
+  .xp { width: 5cqw; height: 0.55cqw; border: 0.12cqw solid var(--ink); border-radius: 99cqw; overflow: hidden; background: #fffaf0; }
+  .xp i { display: block; height: 100%; width: 62%; background: var(--red); }
+  .timer { left: 50%; transform: translateX(-50%); top: 10%; text-align: center; color: var(--cream); }
+  .timer .lab { color: var(--rose); font-size: 1.15cqw; letter-spacing: 0.14em; font-weight: 600; }
+  .timer .time { font-family: var(--num); font-size: 10.5cqw; line-height: 1; text-shadow: 0 0.3cqw 0.8cqw rgba(0, 0, 0, 0.35); }
+  .timer .row { display: flex; gap: 0.8cqw; justify-content: center; margin-top: 0.6cqw; }
+  .btn { border: 0.18cqw solid var(--cream); color: var(--cream); border-radius: 99cqw; padding: 0.25cqw 1.5cqw; font-size: 1.1cqw; font-weight: 600; }
+  .btn.main { background: var(--red); border-color: var(--red); }
+  .beast { left: 50%; transform: translateX(-50%); bottom: 1.5%; height: 58%; }
+  .sidecard { background: color-mix(in srgb, var(--card) 95%, transparent); border: 0.2cqw solid var(--ink); border-radius: 0.7cqw; padding: 1.2cqw 1.4cqw; box-shadow: 0 0.5cqw 1.4cqw rgba(0, 0, 0, 0.3); font-size: 1.2cqw; }
+  .sidecard .rub { color: var(--red); font-size: 0.95cqw; letter-spacing: 0.12em; font-weight: 600; margin-bottom: 0.4cqw; }
+  .sidecard .rub + .rub, .sidecard .gap { margin-top: 1cqw; }
+  .task { border-bottom: 0.12cqw solid rgba(42, 34, 27, 0.2); padding: 0.35cqw 0; }
+  .task.add { color: rgba(42, 34, 27, 0.55); border-bottom-style: dashed; }
+  .box { display: inline-block; width: 1.1cqw; height: 1.1cqw; border: 0.17cqw solid var(--ink); margin-right: 0.6cqw; vertical-align: -0.1cqw; }
+  .box.done { background: var(--ink); }
+  .tasks { left: 2.4%; top: 31%; width: 21%; }
+  .pig { left: 64%; bottom: 4%; width: 6.5cqw; height: 6.5cqw; border: 0.2cqw dashed var(--gold); border-radius: 50%; color: var(--gold); display: grid; place-items: center; text-align: center; font-size: 0.9cqw; line-height: 1.1; }
+
+  /* group: friends in the room as medallions */
+  .room { right: 2.4%; top: 31%; width: 17%; color: var(--cream); }
+  .room .rub { color: var(--rose); font-size: 0.95cqw; letter-spacing: 0.12em; font-weight: 600; margin-bottom: 0.6cqw; }
+  .friend { position: relative; display: flex; align-items: center; gap: 0.8cqw; margin-bottom: 0.9cqw; }
+  .medal { position: relative; flex: none; border-radius: 50%; background: var(--card); border: 0.45cqw solid #d9783f; box-shadow: inset 0 0 0 0.25cqw var(--card), inset 0 0 0 0.42cqw var(--red); overflow: hidden; }
+  .medal img { position: absolute; }
+  .friend .who { font-size: 1.15cqw; font-weight: 600; line-height: 1.15; }
+  .friend .st { font-size: 0.95cqw; opacity: 0.85; font-weight: 400; display: block; }
+  .quiet .friend { opacity: 0.72; }
+  .paw { position: relative; display: inline-block; margin-top: 0.3cqw; border: 0.15cqw solid var(--cream); border-radius: 99cqw; padding: 0 0.9cqw; font-size: 0.9cqw; }
+  .chat { right: 2.4%; bottom: 4%; width: 22%; }
+  .msg { padding: 0.3cqw 0; } .msg b { color: var(--red); font-weight: 600; }
+  .input { margin-top: 0.6cqw; border: 0.15cqw solid rgba(42, 34, 27, 0.4); border-radius: 0.4cqw; padding: 0.3cqw 0.6cqw; color: rgba(42, 34, 27, 0.5); }
+  .held { left: 2.4%; top: 31%; width: 22%; }
+
+  /* widget */
+  .desk { position: relative; height: 420px; background: linear-gradient(160deg, #a7b8ca, #cdbda4); display: grid; place-items: center; overflow: hidden; }
+  .menubar { position: absolute; left: 0; right: 0; top: 0; height: 24px; background: rgba(250, 247, 240, 0.85); display: flex; justify-content: flex-end; align-items: center; gap: 14px; padding: 0 12px; font: 13px system-ui; }
+  .menubar .mb { display: flex; align-items: center; gap: 5px; font-family: var(--num); font-size: 15px; }
+  .w1 { position: relative; width: 440px; height: 280px; border-radius: 12px; overflow: hidden; border: 3px solid var(--gold); box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3); background: #24407a url('art-src/vault/vault-adobe-expanded.png') center / cover; font-family: var(--text); }
+  .w1 img { position: absolute; left: -4px; bottom: 2px; height: 236px; }
+  .w1 .side { position: absolute; right: 16px; top: 22px; width: 180px; text-align: center; color: var(--cream); }
+  .w1 .lab { color: var(--rose); font-size: 12px; letter-spacing: 0.14em; font-weight: 600; }
+  .w1 .time { font-family: var(--num); font-size: 60px; line-height: 1; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); }
+  .w1 .tk { font-size: 13px; margin: 6px 0 10px; }
+  .w1 .btn { display: inline-block; font-size: 13px; padding: 2px 14px; border-width: 2px; }
+  .w1 .bar { position: absolute; left: 0; right: 0; top: 0; height: 22px; background: rgba(20, 28, 56, 0.45); display: flex; align-items: center; gap: 6px; padding: 0 9px; }
+  .w1 .bar i { width: 10px; height: 10px; border-radius: 50%; background: rgba(251, 241, 216, 0.55); display: block; }
+  .w1 .bar span { margin-left: auto; color: var(--cream); font-size: 11px; opacity: 0.85; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Productive Possum: the starry vault</h1>
+  <p>Your reference, made into a full-screen background (painted from a tile, then extended to widescreen with Adobe). Title top left; level, streak and tabs top right; the timer above your beast; tasks on one side and friends on the other. Readable gothic words, scribe's-hand numbers.</p>
+</header>
+
+<section>
+  <h2>While you focus</h2>
+  <p>Friends in your room show quietly as medallions: who's here and how far along they are. Nothing pops up.</p>
+  <div class="stack" id="focus"></div>
+</section>
+
+<section>
+  <h2>On a break</h2>
+  <p>Things held during focus come forward on the left; friends open up on the right, with paws to send and a short chat.</p>
+  <div class="stack" id="break"></div>
+</section>
+
+<section>
+  <h2>Mac widget: scene window</h2>
+  <p>At real size. The countdown is also in the menu bar.</p>
+  <div class="stack" style="max-width:720px" id="widget"></div>
+</section>
+
+<script>
+  const CAT = '../assets/art/cat-writing.svg';
+  // The cat's head sits at x 350-606, y 86-342 in the drawing's 1024 space.
+  const medal = (size, tint = '') => { const s = size / 256; return `<div class="medal" style="width:${size}cqw;height:${size}cqw"><img src="${CAT}" alt="" style="width:${1024 * s}cqw;left:${-350 * s}cqw;top:${-86 * s}cqw;${tint}"></div>`; };
+  const topright = (xp = 62) => `<div class="topright"><span class="pill">Level 3 <span class="xp"><i style="width:${xp}%"></i></span></span><span class="pill">4-day streak</span><span class="pill tab">Planner</span><span class="pill tab">Buddy room</span><span class="pill tab">Settings</span></div>`;
+  const common = `<div class="title">Productive Possum</div><img class="beast" src="${CAT}" alt=""><div class="pig">hungry<br>pig</div>`;
+  const friendsQuiet = `<div class="room quiet"><div class="rub">IN THE ROOM</div>
+    <div class="friend">${medal(4.2, 'filter:hue-rotate(160deg) saturate(.6)')}<div class="who">Ben<span class="st">focusing, 12 left</span></div></div>
+    <div class="friend">${medal(4.2, 'filter:grayscale(.85) brightness(1.15)')}<div class="who">Ana<span class="st">focusing, 3 left</span></div></div></div>`;
+  const focus = `${common}${topright()}
+    <div class="timer"><div class="lab">FOCUS</div><div class="time">18:24</div><div class="row"><span class="btn main">Pause</span><span class="btn">Skip</span></div></div>
+    <div class="sidecard tasks"><div class="rub">THIS SESSION</div><div class="task"><span class="box done"></span>Outline chapter three</div><div class="task"><span class="box"></span>Draft the opening</div><div class="task add">+ add a task</div></div>
+    ${friendsQuiet}`;
+  const brk = `${common}${topright(80)}
+    <div class="timer"><div class="lab">SHORT BREAK</div><div class="time">05:00</div><div class="row"><span class="btn main">Start break</span><span class="btn">Skip</span></div></div>
+    <div class="sidecard held"><div class="rub">WHILE YOU FOCUSED</div><div class="task">Ben sent you a paw</div><div class="task">Reminder: email the printer</div><div class="task">Fed to the pig: "buy oat milk"</div>
+      <div class="rub gap">NEXT SESSION</div><div class="task"><span class="box"></span>Draft the opening</div><div class="task add">+ add a task</div></div>
+    <div class="room"><div class="rub">IN THE ROOM</div>
+      <div class="friend">${medal(5.4, 'filter:hue-rotate(160deg) saturate(.6)')}<div class="who">Ben<span class="st">on a break too</span><span class="paw">Send a paw</span></div></div>
+      <div class="friend">${medal(5.4, 'filter:grayscale(.85) brightness(1.15)')}<div class="who">Ana<span class="st">focusing, 3 left</span><span class="paw" style="opacity:.6">Paw waits for her break</span></div></div></div>
+    <div class="sidecard chat"><div class="rub">ROOM CHAT</div><div class="msg"><b>Ben</b> halfway through my reading!</div><div class="msg"><b>You</b> nice, tea time here</div><div class="input">Say something</div></div>`;
+  const wrap = (inner, title, note) => `<div class="card"><div class="scr">${inner}</div><div class="txt"><b>${title}</b>${note}</div></div>`;
+  document.getElementById('focus').innerHTML = wrap(focus, 'Focus', 'The timer sits above your beast. This session\'s tasks are on the left, with a quick add. Friends are quiet medallions on the right. The level and tabs stay small in the top corner.');
+  document.getElementById('break').innerHTML = wrap(brk, 'Break', 'The same frame. The left card swaps to what was held for you (paws, reminders, stray thoughts you fed the pig) and the next session. Friends get bigger, with paws and a chat card.');
+
+  const menubar = `<div class="menubar"><span>Wed 20 Nov</span><span class="mb"><svg viewBox="0 0 14 14" width="14" height="14"><path d="M 3 2 L 11 2 L 8 7 L 11 12 L 3 12 L 6 7 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>18:24</span></div>`;
+  document.getElementById('widget').innerHTML = `<div class="card"><div class="desk">${menubar}<div class="w1"><div class="bar"><i></i><i></i><i></i><span>Productive Possum</span></div><img src="${CAT}" alt=""><div class="side"><div class="lab">FOCUS</div><div class="time">18:24</div><div class="tk">Draft the opening</div><span class="btn">Pause</span></div></div></div>
+    <div class="txt"><b>Scene window</b>Your beast at its desk under the stars, with the time in the sky beside it. It floats over other apps; click it to open the full app.</div></div>`;
+</script>
+</body>
+</html>

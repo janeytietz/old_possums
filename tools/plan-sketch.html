@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>pomocat planner sketch</title>
+<link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink: #5a4636; --paper: #fffaf2; --wall: #efe2cf; --sage: #9db89a; --peach: #f2b48c; --rose: #eeb0aa; --sky: #b9d4dc; --sand: #f6e7c9; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--wall); color: var(--ink); font: 15px/1.35 'Shantell Sans', cursive; padding: 18px 22px; }
+  header { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+  .brand { font-weight: 700; font-size: 22px; }
+  .tabs { display: flex; gap: 6px; }
+  .tabs span { border: 2px solid var(--ink); border-radius: 12px; padding: 3px 12px; background: var(--paper); }
+  .tabs span.on { background: var(--peach); }
+  .back { margin-left: auto; border: 2px solid var(--ink); border-radius: 12px; padding: 3px 12px; background: var(--paper); }
+  .wrap { display: grid; grid-template-columns: 190px 1fr 270px; gap: 14px; align-items: start; }
+  .panel { background: var(--paper); border: 2px solid var(--ink); border-radius: 16px; padding: 12px 14px; box-shadow: 3px 4px 0 rgba(90, 70, 54, .16); }
+  h3 { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
+  .proj { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 8px; }
+  .proj.on { background: var(--sand); }
+  .proj i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ink); }
+  .proj b { margin-left: auto; font-weight: 400; opacity: .6; font-size: 13px; }
+  .add { opacity: .65; margin-top: 6px; }
+  .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .col { background: rgba(255, 250, 242, .55); border: 2px dashed rgba(90, 70, 54, .35); border-radius: 16px; padding: 10px; min-height: 360px; }
+  .col h3 { display: flex; justify-content: space-between; }
+  .card { background: var(--paper); border: 2px solid var(--ink); border-radius: 12px; padding: 8px 10px; margin-bottom: 9px; box-shadow: 2px 3px 0 rgba(90, 70, 54, .14); }
+  .card .t { font-weight: 500; }
+  .meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; font-size: 12px; }
+  .chip { border: 1.5px solid var(--ink); border-radius: 8px; padding: 0 6px; background: var(--sand); }
+  .chip.thesis { background: #cfe0d0; } .chip.admin { background: #f7d9c6; } .chip.health { background: #d6e3ea; } .chip.side { background: #ead7e4; }
+  .chip.due { background: #fff; }
+  .chip.soon { background: var(--rose); }
+  .ic { width: 13px; height: 13px; vertical-align: -2px; }
+  .session .row { display: flex; gap: 8px; align-items: center; padding: 3px 0; }
+  .box { width: 15px; height: 15px; border: 2px solid var(--ink); border-radius: 5px; flex: none; }
+  .box.on { background: var(--sage); }
+  .done { opacity: .5; text-decoration: line-through; }
+  textarea { width: 100%; height: 110px; resize: none; border: 2px solid var(--ink); border-radius: 12px; padding: 8px; font: 14px 'Shantell Sans'; color: var(--ink); background: #fffdf8; }
+  .btn { display: inline-block; margin-top: 8px; border: 2px solid var(--ink); border-radius: 12px; padding: 4px 14px; background: var(--sage); font-weight: 600; box-shadow: 2px 3px 0 rgba(90, 70, 54, .25); }
+  .note { font-size: 12px; opacity: .65; margin-top: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">pomocat</div>
+  <div class="tabs"><span>Today</span><span class="on">Board</span><span>Calendar</span></div>
+  <span class="back">Back to my cat</span>
+</header>
+
+<div class="wrap">
+  <div class="panel">
+    <h3>Projects</h3>
+    <div class="proj on"><i style="background:#cfe0d0"></i>All<b>12</b></div>
+    <div class="proj"><i style="background:#cfe0d0"></i>Thesis<b>5</b></div>
+    <div class="proj"><i style="background:#f7d9c6"></i>Life admin<b>4</b></div>
+    <div class="proj"><i style="background:#d6e3ea"></i>Health<b>2</b></div>
+    <div class="proj"><i style="background:#ead7e4"></i>Side project<b>1</b></div>
+    <div class="add">+ New project</div>
+  </div>
+
+  <div class="board">
+    <div class="col">
+      <h3>To do <span style="opacity:.5">5</span></h3>
+      <div class="card"><div class="t">Write discussion section</div><div class="meta"><span class="chip thesis">Thesis</span><span class="chip due">Fri</span><span class="chip">0 / 4 steps</span></div></div>
+      <div class="card"><div class="t">Book dentist</div><div class="meta"><span class="chip admin">Life admin</span><span class="chip soon">Tomorrow</span><span class="chip"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#5a4636" stroke-width="2"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z M10 20a2 2 0 0 0 4 0"/></svg> 9:00</span></div></div>
+      <div class="card"><div class="t">Run 5k</div><div class="meta"><span class="chip health">Health</span><span class="chip">Repeats weekly</span></div></div>
+    </div>
+    <div class="col">
+      <h3>Doing <span style="opacity:.5">2</span></h3>
+      <div class="card"><div class="t">Draft the intro</div><div class="meta"><span class="chip thesis">Thesis</span><span class="chip due">Today</span><span class="chip">2 / 3 steps</span></div></div>
+      <div class="card"><div class="t">Reply to Sam</div><div class="meta"><span class="chip admin">Life admin</span><span class="chip">Linked to: Book flights</span></div></div>
+    </div>
+    <div class="col">
+      <h3>Done <span style="opacity:.5">5</span></h3>
+      <div class="card done"><div class="t">Clean up references</div><div class="meta"><span class="chip thesis">Thesis</span></div></div>
+      <div class="card done"><div class="t">Pay rent</div><div class="meta"><span class="chip admin">Life admin</span></div></div>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:14px">
+    <div class="panel session">
+      <h3>This session</h3>
+      <div class="row"><span class="box on"></span><span class="done">Outline intro paragraph</span></div>
+      <div class="row"><span class="box"></span>Find 3 key citations</div>
+      <div class="row"><span class="box"></span>Write first draft</div>
+      <div class="note">Picked from your board before you press start.</div>
+    </div>
+    <div class="panel">
+      <h3>Turn notes into tasks</h3>
+      <textarea>need to email prof re: extension by thurs. dentist? also start lit review chapter 2, ask Priya for her notes</textarea>
+      <span class="btn">Make tasks</span>
+      <div class="note">Suggests tasks with projects and dates. You check them before anything is added.</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

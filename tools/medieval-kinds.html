@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medieval settings</title>
+<style>
+  :root { --ink: #3b2f27; --bg: #efe8dc; --paper: #fffdf8; --line: #cbbfae; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+  header { padding: 18px 24px 0; max-width: 1180px; }
+  h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; }
+  header p { margin: 0; opacity: 0.75; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 14px 24px 28px; max-width: 1180px; }
+  .card { background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .card svg { display: block; width: 100%; height: auto; border-bottom: 1.5px solid var(--line); }
+  .txt { padding: 10px 14px 14px; }
+  h2 { margin: 0 0 2px; font-size: 16px; font-weight: 650; }
+  .txt p { margin: 0; font-size: 14px; opacity: 0.8; }
+  @media (max-width: 760px) { header { padding: 14px 16px 0; } .grid { grid-template-columns: 1fr; padding: 12px 16px 24px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Step 3: which kind of medieval?</h1>
+  <p>The same two beasts, a little cartoony, in four medieval settings. This sets the colours, the lines and what sits behind them.</p>
+</header>
+<main class="grid" id="grid"></main>
+
+<script>
+  const rng = (seed) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  function cat(p) {
+    const sw = p.sw;
+    return `<g stroke="${p.ink}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M 126 172 C 160 170 170 140 158 118 C 152 108 142 112 146 120" fill="none" stroke-width="${sw * 2 + 8}"/>
+      <path d="M 126 172 C 160 170 170 140 158 118 C 152 108 142 112 146 120" fill="none" stroke="${p.fur}" stroke-width="8"/>
+      <path d="M 126 172 C 160 170 170 140 158 118 C 152 108 142 112 146 120" fill="none" stroke="${p.stripe}" stroke-width="8" stroke-dasharray="4 8" stroke-linecap="butt"/>
+      <path d="M 72 180 C 66 140 78 104 100 98 C 122 104 134 140 128 180 Z" fill="${p.fur}"/>
+      <path d="M 100 104 C 90 120 88 150 92 178 L 108 178 C 112 150 110 120 100 104 Z" fill="${p.cream}" stroke="none"/>
+      <path d="M 80 132 l -3 6 M 78 148 l -3 6 M 120 132 l 3 6 M 122 148 l 3 6 M 96 108 l 0 6 M 104 108 l 0 6${p.extraFur ? ' M 82 160 l -3 6 M 118 160 l 3 6 M 80 118 l -2 6 M 120 118 l 2 6' : ''}" fill="none" stroke-width="1.6"/>
+      <path d="M 84 124 C 83 150 84 166 85 178 M 96 178 C 96 164 96 146 96 126 M 104 126 C 104 146 104 164 104 178 M 115 178 C 116 166 117 150 116 124" fill="none"/>
+      <ellipse cx="90" cy="179" rx="9" ry="5" fill="${p.fur}"/><ellipse cx="110" cy="179" rx="9" ry="5" fill="${p.fur}"/>
+      <path d="M 78 58 L 79 30 L 95 46 Z M 122 58 L 121 30 L 105 46 Z" fill="${p.fur}"/>
+      <path d="M 82 52 L 83 38 L 91 46 Z M 118 52 L 117 38 L 109 46 Z" fill="${p.inner}" stroke="none"/>
+      <path d="M 75 72 C 75 52 87 44 100 44 C 113 44 125 52 125 72 C 125 88 113 96 100 96 C 87 96 75 88 75 72 Z" fill="${p.fur}"/>
+      <path d="M 94 50 l 1 7 M 100 49 l 0 8 M 106 50 l -1 7" fill="none" stroke="${p.stripe}" stroke-width="2"/>
+      <ellipse cx="100" cy="84" rx="12" ry="8" fill="${p.cream}" stroke="none"/>
+      <path d="M 83 71 Q 89 65 95 71 Q 89 75 83 71 Z M 105 71 Q 111 65 117 71 Q 111 75 105 71 Z" fill="${p.eye}" stroke-width="1.8"/>
+      <circle cx="91.4" cy="70.4" r="3.3" fill="${p.ink}" stroke="none"/><circle cx="113.4" cy="70.4" r="3.3" fill="${p.ink}" stroke="none"/>
+      <path d="M 97 79 L 103 79 L 100 82.5 Z" fill="${p.nose}" stroke-width="1.4"/>
+      <path d="M 94 86 Q 100 91 106 86" fill="none" stroke-width="2"/>
+      <path d="M 86 80 L 62 76 M 86 84 L 62 86 M 114 80 L 138 76 M 114 84 L 138 86" fill="none" stroke-width="1.2"/>
+    </g>`;
+  }
+
+  function snailHare(p) {
+    const sw = p.sw;
+    let spiral = '';
+    for (let i = 0; i <= 120; i++) {
+      const t = (i / 120) * Math.PI * 5.2, r = 3 + t * 2.45;
+      spiral += `${i ? 'L' : 'M'} ${(124 + r * Math.cos(t)).toFixed(1)} ${(128 + r * Math.sin(t)).toFixed(1)} `;
+    }
+    return `<g stroke="${p.ink}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M 36 182 C 60 170 152 168 182 182 Z" fill="${p.foot}"/>
+      <circle cx="124" cy="128" r="45" fill="${p.shell}"/>
+      <path d="${spiral}" fill="none" stroke="${p.spiral}" stroke-width="${sw * 0.8}"/>
+      <path d="M 150 104 l 5 -3 M 158 128 l 6 0 M 150 154 l 5 3" fill="none" stroke-width="1.6"/>
+      <path d="M 52 66 C 42 42 44 18 52 8 C 62 18 64 42 62 64 Z M 68 64 C 70 40 78 20 90 14 C 94 28 86 48 76 66 Z" fill="${p.hare}"/>
+      <path d="M 53 56 C 48 40 49 26 53 18 C 57 28 58 42 57 56 Z M 72 56 C 74 40 79 28 86 22 C 87 32 82 46 76 58 Z" fill="${p.inner}" stroke="none"/>
+      <path d="M 46 102 C 40 126 42 152 48 178 L 82 178 C 80 152 80 126 80 102 Z" fill="${p.hare}"/>
+      <path d="M 63 108 C 54 124 54 152 57 178 L 71 178 C 74 152 72 124 63 108 Z" fill="${p.cream}" stroke="none"/>
+      <path d="M 50 124 l -3 6 M 50 146 l -3 6 M 77 124 l 3 6" fill="none" stroke-width="1.6"/>
+      <ellipse cx="54" cy="179" rx="9" ry="5" fill="${p.hare}"/><ellipse cx="74" cy="179" rx="9" ry="5" fill="${p.hare}"/>
+      <path d="M 43 86 C 43 69 52 61 64 61 C 76 61 85 69 85 86 C 85 99 76 107 64 107 C 52 107 43 99 43 86 Z" fill="${p.hare}"/>
+      <ellipse cx="64" cy="97" rx="11" ry="7.5" fill="${p.cream}" stroke="none"/>
+      <path d="M 48.6 84 Q 54 78.6 59.4 84 Q 54 87.6 48.6 84 Z M 68.6 84 Q 74 78.6 79.4 84 Q 74 87.6 68.6 84 Z" fill="${p.eye}" stroke-width="1.8"/>
+      <circle cx="56.2" cy="83.4" r="3" fill="${p.ink}" stroke="none"/><circle cx="76.2" cy="83.4" r="3" fill="${p.ink}" stroke="none"/>
+      <path d="M 61 91 L 67 91 L 64 94.5 Z" fill="${p.nose}" stroke-width="1.4"/>
+      <path d="M 59 98 Q 64 102 69 98" fill="none" stroke-width="1.8"/>
+    </g>`;
+  }
+
+  const star = (x, y, r) => {
+    let d = '';
+    for (let i = 0; i < 12; i++) {
+      const a = (Math.PI / 6) * i - Math.PI / 2, rr = i % 2 ? r * 0.42 : r;
+      d += (i ? 'L' : 'M') + (x + rr * Math.cos(a)).toFixed(1) + ' ' + (y + rr * Math.sin(a)).toFixed(1);
+    }
+    return d + 'Z';
+  };
+  const moon = (x, y, r) => `M${x - r} ${y - r * 0.3} A${r} ${r} 0 0 0 ${x + r} ${y - r * 0.3} A${r * 0.95} ${r * 0.5} 0 0 1 ${x - r} ${y - r * 0.3}Z`;
+  const grassPath = (y0, n, seed) => { const r = rng(seed); let d = ''; for (let i = 0; i < n; i++) d += `M ${(14 + r() * 372).toFixed(0)} ${(y0 + r() * 16).toFixed(0)} q 2 -6 5 -8 `; return d; };
+  const beasts = (p, dx = 0) => `<g transform="translate(${24 + dx} 18)">${cat(p)}</g><g transform="translate(${196 + dx} 22)">${snailHare(p)}</g>`;
+
+  const base = { sw: 2.8, ink: '#2a2320', fur: '#e8a25c', stripe: '#c47a3a', cream: '#fbeedb', inner: '#ef9f92', eye: '#fffaf0', nose: '#d9776f',
+    hare: '#cfa77d', shell: '#d99aa7', spiral: '#9c5866', foot: '#b9c8b4' };
+
+  // 1. Bestiary page
+  const sky = [[44, 44, 's'], [92, 34, 'm'], [176, 30, 's'], [250, 40, 'm'], [300, 30, 's'], [354, 50, 's'], [366, 120, 'm'], [40, 120, 's'], [190, 110, 's'], [340, 160, 's']]
+    .map(([x, y, k]) => `<path d="${k === 's' ? star(x, y, 7) : moon(x, y, 7)}" fill="#d4ad4a"/>`).join('');
+  const svgA = `<rect width="400" height="240" fill="#2d4377"/>${sky}
+    <path d="M 8 210 C 100 190 300 190 392 210 L 392 232 L 8 232 Z" fill="#8fb07a"/>
+    <path d="${grassPath(202, 22, 3)}" fill="none" stroke="#2a2320" stroke-width="1.4" stroke-linecap="round"/>
+    ${beasts(base)}
+    <rect x="4" y="4" width="392" height="232" fill="none" stroke="#5f8c5c" stroke-width="8"/>
+    <rect x="12" y="12" width="376" height="216" fill="none" stroke="#c4664c" stroke-width="5"/>
+    <g fill="none" stroke="#2a2320"><rect x="0.75" y="0.75" width="398.5" height="238.5" stroke-width="1.5"/><rect x="8" y="8" width="384" height="224" stroke-width="1.2"/><rect x="14.5" y="14.5" width="371" height="211" stroke-width="1.2"/></g>`;
+
+  // 2. Hand-coloured woodcut
+  const pB = { ...base, sw: 3, ink: '#1d1915', fur: '#f1cf98', stripe: '#1d1915', cream: '#fffaf0', inner: '#c63a2c', nose: '#c63a2c', hare: '#ead9bf', shell: '#e7aaa5', spiral: '#1d1915', foot: '#fffaf0', extraFur: true };
+  let hatchB = '';
+  for (let y = 214; y < 230; y += 5) for (let x = 20 + (y % 2) * 9; x < 380; x += 18) hatchB += `M ${x} ${y} l 10 0 `;
+  const svgB = `<rect width="400" height="240" fill="#f2e9d4"/>
+    <path d="M 14 210 L 386 210" stroke="#1d1915" stroke-width="2"/>
+    <path d="${hatchB}" stroke="#1d1915" stroke-width="1.2" stroke-linecap="round"/>
+    ${beasts(pB)}
+    <g fill="none" stroke="#1d1915"><rect x="6" y="6" width="388" height="228" stroke-width="2.6"/><rect x="11" y="11" width="378" height="218" stroke-width="1"/></g>`;
+
+  // 3. Church wall painting
+  const pC = { ...base, sw: 2.4, ink: '#7a4430', fur: '#d39a6c', stripe: '#9a5a3c', cream: '#f3e7d4', inner: '#c77a63', eye: '#f6eedf', nose: '#b9573f', hare: '#c9a888', shell: '#cfa2a6', spiral: '#8e5a5f', foot: '#b6cdc2' };
+  const tree = (x, b, h) => {
+    let leaves = '';
+    for (const a of [-160, -125, -90, -55, -20]) {
+      const rad = (a * Math.PI) / 180, lx = x + 2 + Math.cos(rad) * 15, ly = b - h + Math.sin(rad) * 15;
+      leaves += `<ellipse cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" rx="17" ry="4.5" transform="rotate(${a} ${lx.toFixed(1)} ${ly.toFixed(1)})" fill="#6f9f9b"/>`;
+    }
+    return `<path d="M ${x} ${b} C ${x + 4} ${b - h * 0.4} ${x - 4} ${b - h * 0.7} ${x + 2} ${b - h}" fill="none" stroke="#c9a45c" stroke-width="5" stroke-linecap="round"/>${leaves}`;
+  };
+  let ros = '';
+  for (let x = 20; x < 400; x += 44) ros += `<circle cx="${x}" cy="9" r="4" fill="none" stroke="#8d9bb0" stroke-width="1.6"/><circle cx="${x}" cy="9" r="1.2" fill="#8d9bb0"/>`;
+  const svgC = `<rect width="400" height="240" fill="#ebe1cf"/>
+    <ellipse cx="90" cy="70" rx="90" ry="40" fill="#e4d8c3" opacity=".7"/><ellipse cx="320" cy="140" rx="110" ry="50" fill="#e4d8c3" opacity=".6"/>
+    <rect width="400" height="18" fill="#ddd2bd"/>${ros}
+    <path d="M 0 196 C 80 188 160 200 240 192 C 300 186 360 196 400 190 L 400 240 L 0 240 Z" fill="#c4dccf"/>
+    <path d="${grassPath(206, 30, 9)}" fill="none" stroke="#8db3a4" stroke-width="1.6" stroke-linecap="round"/>
+    ${tree(30, 210, 130)}${tree(376, 208, 110)}
+    ${beasts(pC)}
+    <rect width="400" height="240" fill="#f6efe3" opacity=".12"/>`;
+
+  // 4. Margin doodle
+  const pD = { ...base, sw: 2.5, ink: '#3a2c22' };
+  const r = rng(5);
+  let script = '';
+  for (let y = 40; y < 200; y += 12) {
+    let x = y < 66 ? 330 : 300;
+    while (x < 384) {
+      const n = 3 + Math.floor(r() * 5);
+      script += `M${x} ${y}`;
+      for (let i = 0; i < n && x < 382; i++) { script += 'q1.5 -6 3 0'; x += 3; }
+      x += 5;
+    }
+  }
+  let vine = '';
+  for (const [x, y, a] of [[36, 40, -30], [22, 82, 40], [38, 124, -30], [22, 166, 40], [36, 206, -30]])
+    vine += `<ellipse cx="${x}" cy="${y}" rx="9" ry="4" transform="rotate(${a} ${x} ${y})" fill="#7f9f6c" stroke="#3a2c22" stroke-width="1.2"/><circle cx="${x + (a < 0 ? -9 : 9)}" cy="${y + 8}" r="2.6" fill="#d4ad4a"/>`;
+  const svgD = `<defs><radialGradient id="vel" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#f4ead3"/><stop offset="1" stop-color="#e6d6b4"/></radialGradient></defs>
+    <rect width="400" height="240" fill="url(#vel)"/>
+    <path d="${script}" fill="none" stroke="#4a3a2e" stroke-width="1.3" stroke-linecap="round" opacity=".85"/>
+    <rect x="300" y="28" width="24" height="24" fill="#2f4f8f" stroke="#3a2c22" stroke-width="1.2"/>
+    <path d="M 306 46 L 312 32 L 318 46 M 308 41 L 316 41" fill="none" stroke="#c4664c" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 28 14 C 48 56 12 96 30 136 C 48 176 14 214 28 236" fill="none" stroke="#5f7f4c" stroke-width="2"/>${vine}
+    <path d="M 60 206 C 110 196 240 196 290 206" fill="none" stroke="#3a2c22" stroke-width="2" stroke-linecap="round"/>
+    <g transform="translate(-6 0) scale(.92) translate(30 14)">${beasts(pD, -10)}</g>`;
+
+  const OPTIONS = [
+    { title: '1. Bestiary page', text: 'A framed panel, deep blue with gold stars and moons. Rich and storybook-like.', svg: svgA },
+    { title: '2. Hand-coloured woodcut', text: 'Black ink on paper, extra fur strokes, washes of colour and dabs of red.', svg: svgB },
+    { title: '3. Church wall painting', text: 'Faded plaster colours and soft brown lines. The calmest.', svg: svgC },
+    { title: '4. Margin doodle', text: 'Just the beasts on a plain page beside some writing, with no room around them.', svg: svgD },
+  ];
+  document.getElementById('grid').innerHTML = OPTIONS.map((o) =>
+    `<section class="card"><svg viewBox="0 0 400 240" role="img" aria-label="${o.title}">${o.svg}</svg><div class="txt"><h2>${o.title}</h2><p>${o.text}</p></div></section>`).join('');
+</script>
+</body>
+</html>

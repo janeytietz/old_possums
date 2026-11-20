@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pomocat collage motion test</title>
+  <style>
+    :root { --ink: #211d18; --paper: #f7ead7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.4 Georgia, serif; }
+    main { width: min(760px, 100%); margin: 0 auto; padding: 18px; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    button { border: 2px solid var(--ink); background: #fff8e9; color: var(--ink); padding: 6px 13px; font: inherit; cursor: pointer; }
+    button.on { background: var(--ink); color: var(--paper); }
+    .frame { border: 2px solid var(--ink); background: #fcefdc; overflow: hidden; }
+    .stage { position: relative; width: 100%; aspect-ratio: 1; }
+    .piece { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .plate { z-index: 1; }
+    .tail { z-index: 2; transform-origin: 79% 62.5%; }
+    .writing { z-index: 3; transform-origin: 51.5% 41.2%; }
+
+    /* Deliberately stiff: held frames and tiny jumps, not fluid tweening. */
+    .playing .writing { animation: scribble 1.9s steps(1, end) infinite; }
+    .playing .tail { animation: tail-flick 10s steps(1, end) infinite; }
+    @keyframes scribble {
+      0%, 100% { transform: rotate(-3.2deg); }
+      20% { transform: rotate(-4.1deg) translate(1px, 0); }
+      40% { transform: rotate(-3.4deg) translate(3px, 1px); }
+      60% { transform: rotate(-4.3deg) translate(5px, 0); }
+      80% { transform: rotate(-3.5deg) translate(2px, 1px); }
+    }
+    @keyframes tail-flick {
+      0%, 78%, 100% { transform: rotate(0deg); }
+      82% { transform: rotate(-3deg); }
+      87% { transform: rotate(1.5deg); }
+      92% { transform: rotate(-.7deg); }
+    }
+    .note { border: 2px solid var(--ink); border-top: 0; padding: 9px 12px; background: #fff8e9; }
+    .note b { font-weight: 700; }
+    @media (prefers-reduced-motion: reduce) { .piece { animation: none !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="controls">
+      <button id="play" class="on">Writing</button>
+      <button id="still">Still</button>
+      <button id="pose">Hold next frame</button>
+    </div>
+    <div class="frame">
+      <div id="stage" class="stage playing" aria-label="A cut-paper cat writing at a medieval desk">
+        <img class="piece tail" src="art-src/collage-parts/tail.png" alt="">
+        <img class="piece plate" src="art-src/collage-parts/plate.jpg" alt="">
+        <img class="piece writing" src="art-src/collage-parts/writing.png" alt="">
+      </div>
+    </div>
+    <div class="note"><b>Focus-state motion test.</b> The forearm and quill move in held cutout frames; the tail makes one occasional stiff flick. No smooth mascot tweening. The snail remains still during focus.</div>
+  </main>
+  <script>
+    const stage = document.getElementById('stage');
+    const writing = stage.querySelector('.writing');
+    const tail = stage.querySelector('.tail');
+    const buttons = [...document.querySelectorAll('button')];
+    function active(button) { buttons.forEach((b) => b.classList.toggle('on', b === button)); }
+    play.onclick = () => {
+      writing.style.transform = tail.style.transform = '';
+      stage.classList.add('playing'); active(play);
+    };
+    still.onclick = () => {
+      stage.classList.remove('playing');
+      writing.style.transform = tail.style.transform = '';
+      active(still);
+    };
+    pose.onclick = () => {
+      stage.classList.remove('playing');
+      writing.style.transform = 'rotate(-4.3deg) translate(4px, 1px)';
+      tail.style.transform = 'rotate(-3deg)';
+      active(pose);
+    };
+  </script>
+</body>
+</html>

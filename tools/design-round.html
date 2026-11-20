@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App and widget layouts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Texturina:wght@400;500;600;700&family=Fondamento&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2a221b; --red: #a8432e; --blue: #2d4377; --gold: #c9a23a; --green: #5f8c5c; --page: #f1e6cc; --card: #f8efd9;
+    --display: 'Texturina', serif; --body: 'Texturina', serif; --dw: 600;
+  }
+  :root.scribe { --display: 'Fondamento', serif; --body: 'Fondamento', serif; --dw: 400; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e6ded0; color: var(--ink); font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+  header { padding: 16px 24px 0; max-width: 1280px; }
+  h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; }
+  header p, section > p { margin: 0; opacity: 0.75; max-width: 1280px; }
+  .switch { display: flex; gap: 8px; margin: 12px 0 0; }
+  .switch button { font: 600 14px system-ui; border: 1.5px solid var(--ink); background: #fffaf0; border-radius: 999px; padding: 5px 14px; cursor: pointer; }
+  .switch button.on { background: var(--ink); color: #fffaf0; }
+  section { padding: 18px 24px 6px; }
+  section > h2 { font-size: 17px; margin: 0 0 2px; font-weight: 650; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; padding: 12px 0 8px; max-width: 1280px; }
+  .card { background: #fffdf8; border: 1.5px solid #c9bda9; border-radius: 12px; overflow: hidden; }
+  .txt { padding: 9px 13px 12px; font-size: 14px; }
+  .txt b { display: block; font-size: 15px; }
+
+  /* ── shared bits ── */
+  .scr { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--page); font-family: var(--body); container-type: inline-size; }
+  .scr * { position: absolute; }
+  .panel-blue { background: var(--blue); border: 0.9cqw solid var(--green); box-shadow: inset 0 0 0 0.45cqw var(--red); overflow: hidden; }
+  .panel-blue .stars { inset: 0; width: 100%; height: 100%; }
+  .panel-blue .floor { left: 0; right: 0; bottom: 0; height: 14%; background: #8fb07a; }
+  .panel-blue img { left: 4%; bottom: 2%; height: 92%; }
+  .rubric { color: var(--red); font-family: var(--display); letter-spacing: 0.08em; }
+  .time { font-family: var(--display); font-weight: var(--dw); line-height: 1; }
+  .name { font-family: var(--display); font-weight: var(--dw); }
+  .btn { position: relative; display: inline-block; border: 0.25cqw solid var(--ink); border-radius: 99cqw; padding: 0.3cqw 1.8cqw; background: #fffaf0; }
+  .pig { border: 0.25cqw dashed var(--red); border-radius: 50%; color: var(--red); font-family: var(--body); display: grid; place-items: center; text-align: center; line-height: 1.1; }
+  .ruled { position: relative; border-bottom: 0.15cqw solid rgba(42, 34, 27, 0.25); padding: 0.4cqw 0; }
+  .box { position: relative; display: inline-block; width: 1.4cqw; height: 1.4cqw; border: 0.2cqw solid var(--ink); margin-right: 0.8cqw; vertical-align: -0.1cqw; }
+  .box.done { background: var(--ink); }
+
+  /* A: manuscript page */
+  .a .frame { inset: 2.5% 2%; border: 0.3cqw solid var(--red); box-shadow: inset 0 0 0 0.6cqw var(--page), inset 0 0 0 0.75cqw #2f4f8f; }
+  .a .panel-blue { left: 5%; top: 9%; width: 50%; height: 82%; }
+  .a .right { left: 60%; right: 6%; top: 10%; bottom: 8%; }
+  .a .right > * { position: relative; }
+  .a .name { font-size: 2.4cqw; margin-bottom: 4cqw; }
+  .a .rubric { font-size: 1.5cqw; }
+  .a .time { font-size: 10cqw; margin: 0.5cqw 0 1.2cqw; }
+  .a .task { font-size: 1.6cqw; }
+  .a .ctrl { margin-top: 1.8cqw; font-size: 1.5cqw; display: flex; gap: 1cqw; }
+  .a .pig { right: 6%; bottom: 8%; width: 9cqw; height: 9cqw; font-size: 1.1cqw; }
+
+  /* B: centre stage */
+  .b .vine { left: 2.4%; top: 4%; bottom: 4%; width: 3%; }
+  .b .panel-blue { left: 29%; top: 6%; width: 42%; height: 56%; }
+  .b .under { left: 25%; right: 25%; top: 64%; text-align: center; }
+  .b .under > * { position: relative; }
+  .b .rubric { font-size: 1.4cqw; }
+  .b .time { font-size: 9cqw; }
+  .b .ctrl { margin-top: 1.2cqw; font-size: 1.4cqw; display: flex; gap: 1cqw; justify-content: center; }
+  .b .margin { right: 4%; top: 12%; width: 18%; font-size: 1.45cqw; transform: rotate(-2deg); }
+  .b .margin > * { position: relative; }
+  .b .margin .rubric { font-size: 1.3cqw; display: block; margin-bottom: 0.6cqw; }
+  .b .name { left: 4.5%; bottom: 4%; font-size: 1.8cqw; transform: rotate(-90deg); transform-origin: left bottom; left: 9%; }
+  .b .pig { left: 9%; bottom: 8%; width: 8cqw; height: 8cqw; font-size: 1cqw; }
+
+  /* C: book spread */
+  .c { background: #cdbf9f; }
+  .c .pageL, .c .pageR { top: 3%; bottom: 3%; width: 47%; background: var(--page); }
+  .c .pageL { left: 3%; border-radius: 0.6cqw 0 0 0.6cqw; box-shadow: inset -2.4cqw 0 2cqw -1.6cqw rgba(60, 40, 20, 0.35); }
+  .c .pageR { right: 3%; border-radius: 0 0.6cqw 0.6cqw 0; box-shadow: inset 2.4cqw 0 2cqw -1.6cqw rgba(60, 40, 20, 0.35); }
+  .c .panel-blue { left: 7%; top: 8%; width: 39%; height: 84%; }
+  .c .right { left: 55%; right: 7%; top: 9%; bottom: 8%; }
+  .c .right > * { position: relative; }
+  .c .name { font-size: 2cqw; text-align: center; margin-bottom: 3cqw; }
+  .c .rubric { font-size: 1.4cqw; text-align: center; }
+  .c .time { font-size: 9.5cqw; text-align: center; margin: 0.5cqw 0 1.4cqw; }
+  .c .task { font-size: 1.5cqw; }
+  .c .ctrl { margin-top: 1.6cqw; font-size: 1.4cqw; display: flex; gap: 1cqw; justify-content: center; }
+  .c .pig { right: 8%; bottom: 7%; width: 8cqw; height: 8cqw; font-size: 1cqw; }
+
+  /* ── widgets ── */
+  .desk { position: relative; height: 270px; background: linear-gradient(160deg, #9fb3c8, #c9b8a0); display: grid; place-items: center; overflow: hidden; }
+  .menubar { position: absolute; left: 0; right: 0; top: 0; height: 24px; background: rgba(250, 247, 240, 0.85); display: flex; justify-content: flex-end; align-items: center; gap: 14px; padding: 0 12px; font: 13px system-ui; }
+  .menubar .mb { display: flex; align-items: center; gap: 5px; font-family: var(--display); font-weight: var(--dw); font-size: 14px; }
+  .menubar svg { width: 14px; height: 14px; }
+  .w { font-family: var(--body); color: var(--ink); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
+  .head { position: relative; overflow: hidden; }
+  .head img { position: absolute; }
+  /* roundel */
+  .w1 { width: 190px; height: 190px; border-radius: 50%; background: var(--card); border: 9px solid #d9783f; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 0 0 4px var(--card), inset 0 0 0 6px var(--red); display: grid; place-items: center; text-align: center; padding-top: 4px; }
+  .w1 .head { width: 84px; height: 84px; margin: 0 auto; }
+  .w1 .time { font-size: 34px; margin-top: -2px; }
+  .w1 .task { font-size: 12px; opacity: 0.8; margin-top: 1px; }
+  /* little panel */
+  .w2 { width: 300px; height: 150px; background: var(--card); border: 3px solid var(--gold); border-radius: 8px; display: grid; grid-template-columns: 120px 1fr; overflow: hidden; }
+  .w2 .pic { background: var(--blue); position: relative; overflow: hidden; border-right: 3px solid var(--gold); }
+  .w2 .pic .head { position: absolute; left: 6px; bottom: 0; width: 110px; height: 110px; }
+  .w2 .pic svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .w2 .info { padding: 14px 12px; text-align: center; }
+  .w2 .time { font-size: 44px; }
+  .w2 .task { font-size: 13px; opacity: 0.85; margin: 2px 0 8px; }
+  .w2 .btn { font-size: 13px; border-width: 2px; padding: 1px 14px; }
+  /* ribbon */
+  .w3 { width: 340px; height: 66px; position: relative; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.25)); box-shadow: none; }
+  .w3 svg.rib { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .w3 .head { position: absolute; left: 30px; top: 5px; width: 54px; height: 54px; border-radius: 50%; background: var(--blue); }
+  .w3 .time { position: absolute; left: 96px; top: 9px; font-size: 32px; }
+  .w3 .task { position: absolute; left: 192px; top: 15px; width: 120px; font-size: 13px; line-height: 1.2; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Productive Possum: main screen and widget</h1>
+  <p>Three layouts for the focus screen and three for the Mac widget. Flip the font to see each one in your two picks. The beast is the cat for now; the possum and others come once the art exists. The dashed circle marks where the hungry pig would sit.</p>
+  <div class="switch">
+    <button id="fGothic" class="on" type="button">Readable gothic (Texturina)</button>
+    <button id="fScribe" type="button">Scribe's hand (Fondamento)</button>
+  </div>
+</header>
+
+<section>
+  <h2>Main screen, while you focus</h2>
+  <p>Only what you need while working. Tasks, friends and rewards come forward on breaks.</p>
+  <div class="grid" id="screens"></div>
+</section>
+
+<section>
+  <h2>Mac widget</h2>
+  <p>A small window that floats over your work, with the countdown also in the menu bar (top right).</p>
+  <div class="grid" id="widgets"></div>
+</section>
+
+<script>
+  const CAT = '../assets/art/cat-writing.svg';
+  const rng = (s) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const star = (x, y, r) => {
+    let d = '';
+    for (let i = 0; i < 12; i++) {
+      const a = (Math.PI / 6) * i - Math.PI / 2, rr = i % 2 ? r * 0.42 : r;
+      d += (i ? 'L' : 'M') + (x + rr * Math.cos(a)).toFixed(1) + ' ' + (y + rr * Math.sin(a)).toFixed(1);
+    }
+    return d + 'Z';
+  };
+  const starfield = (seed, n) => { const r = rng(seed); return `<svg class="stars" viewBox="0 0 100 100" preserveAspectRatio="none">${Array.from({ length: n }, () => `<path d="${star(4 + r() * 92, 4 + r() * 70, 1.5 + r() * 0.8)}" fill="#c9a23a"/>`).join('')}</svg>`; };
+  const bluePanel = (seed) => `<div class="panel-blue">${starfield(seed, 18)}<div class="floor"></div><img src="${CAT}" alt=""></div>`;
+  const tasks = `<div class="ruled task"><span class="box done"></span>Outline chapter three</div>
+    <div class="ruled task"><span class="box"></span>Draft the opening</div>`;
+  const ctrl = '<div class="ctrl"><span class="btn">Pause</span><span class="btn">Skip</span></div>';
+  const pig = '<div class="pig">hungry<br>pig</div>';
+  const vine = `<svg class="vine" viewBox="0 0 10 100" preserveAspectRatio="none"><path d="M 5 0 C 9 15 1 30 5 45 C 9 60 1 75 5 100" fill="none" stroke="#5f8c5c" stroke-width=".8"/>${[10, 28, 46, 64, 82].map((y, i) => `<ellipse cx="${i % 2 ? 2.5 : 7.5}" cy="${y}" rx="2.4" ry="1.2" fill="#7f9f6c"/><circle cx="${i % 2 ? 7.5 : 2.5}" cy="${y + 4}" r=".9" fill="#c9a23a"/>`).join('')}</svg>`;
+
+  const SCREENS = [
+    ['a', `<div class="frame"></div>${bluePanel(3)}
+      <div class="right"><div class="name">Productive Possum</div><div class="rubric">FOCUS</div><div class="time">25:00</div>${tasks}${ctrl}</div>${pig}`,
+      'A. Manuscript page', 'The screen is one page: the beast in an illuminated panel on the left, and the timer and this session\'s tasks written out on the right, with red headings like a manuscript.'],
+    ['b', `${vine}${bluePanel(5)}
+      <div class="under"><div class="rubric">FOCUS</div><div class="time">25:00</div>${ctrl}</div>
+      <div class="margin"><span class="rubric">THIS SESSION</span><div>Outline chapter three</div><div>Draft the opening</div></div>
+      <div class="name">Productive Possum</div>${pig}`,
+      'B. Centre stage', 'The beast\'s panel is the centrepiece, with the big timer underneath. Tasks are jotted in the margin like marginalia. The calmest while you work.'],
+    ['c', `<div class="pageL"></div><div class="pageR"></div>${bluePanel(7)}
+      <div class="right"><div class="name">Productive Possum</div><div class="rubric">FOCUS</div><div class="time">25:00</div>${tasks}${ctrl}</div>${pig}`,
+      'C. Open book', 'A two-page spread: the beast on the left page, the timer and tasks on the right page, with the book\'s gutter between them.'],
+  ];
+  document.getElementById('screens').innerHTML = SCREENS.map(([cls, inner, title, note]) =>
+    `<div class="card"><div class="scr ${cls}">${inner}</div><div class="txt"><b>${title}</b>${note}</div></div>`).join('');
+
+  // Head crop of the drawing: the head sits at x 350-606, y 86-342 in its 1024 space.
+  const head = (size) => { const s = size / 256; return `<div class="head" style="width:${size}px;height:${size}px"><img src="${CAT}" alt="" style="width:${1024 * s}px;left:${-350 * s}px;top:${-86 * s}px"></div>`; };
+  const menubar = `<div class="menubar"><span>Wed 20 Nov</span><span class="mb"><svg viewBox="0 0 14 14"><path d="M 3 2 L 11 2 L 8 7 L 11 12 L 3 12 L 6 7 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>18:24</span></div>`;
+  const ribbon = `<svg class="rib" viewBox="0 0 340 66" preserveAspectRatio="none"><path d="M 0 10 L 22 10 L 22 0 L 318 0 L 318 10 L 340 10 L 326 36 L 340 62 L 300 62 L 300 66 L 40 66 L 40 62 L 0 62 L 14 36 Z" fill="#a8432e"/><path d="M 22 4 L 318 4 L 318 60 L 22 60 Z" fill="#f8efd9" stroke="#c9a23a" stroke-width="2"/></svg>`;
+  const WIDGETS = [
+    [`<div class="w w1"><div>${head(84)}<div class="time">18:24</div><div class="task">Draft the opening</div></div></div>`,
+      '1. Roundel', 'A round medallion like the owl in your bestiary pictures: the beast\'s head and the countdown. Smallest on screen.'],
+    [`<div class="w w2"><div class="pic">${starfield(11, 9).replace('class="stars"', '')}${head(110).replace('class="head"', 'class="head" ')}</div><div class="info"><div class="time">18:24</div><div class="task">Draft the opening</div><span class="btn">Pause</span></div></div>`,
+      '2. Little panel', 'A tiny bestiary panel: the beast on blue and gold, with the time, the current task and a pause button.'],
+    [`<div class="w w3">${ribbon}${head(54)}<div class="time">18:24</div><div class="task">Draft the opening</div></div>`,
+      '3. Banner', 'A slim ribbon banner that tucks along the edge of the screen: the beast\'s head, the time and the task.'],
+  ];
+  document.getElementById('widgets').innerHTML = WIDGETS.map(([inner, title, note]) =>
+    `<div class="card"><div class="desk">${menubar}${inner}</div><div class="txt"><b>${title}</b>${note}</div></div>`).join('');
+
+  const g = document.getElementById('fGothic'), s = document.getElementById('fScribe');
+  g.onclick = () => { document.documentElement.classList.remove('scribe'); g.classList.add('on'); s.classList.remove('on'); };
+  s.onclick = () => { document.documentElement.classList.add('scribe'); s.classList.add('on'); g.classList.remove('on'); };
+</script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medieval options</title>
+<style>
+  :root { --ink: #3b2f27; --bg: #efe8dc; --paper: #fffdf8; --line: #cbbfae; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+  header { padding: 18px 24px 0; max-width: 1180px; }
+  h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; }
+  header p { margin: 0; opacity: 0.75; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 14px 24px 28px; max-width: 1180px; }
+  .card { background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .card svg { display: block; width: 100%; height: auto; border-bottom: 1.5px solid var(--line); }
+  .txt { padding: 10px 14px 14px; }
+  h2 { margin: 0 0 2px; font-size: 16px; font-weight: 650; }
+  .txt p { margin: 0; font-size: 14px; opacity: 0.8; }
+  @media (max-width: 760px) { header { padding: 14px 16px 0; } .grid { grid-template-columns: 1fr; padding: 12px 16px 24px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Step 2: which kind of medieval?</h1>
+  <p>The same odd little beast in each, writing in its book while you work. Pick one, or mix parts. Other animals come next.</p>
+</header>
+<main class="grid" id="grid"></main>
+
+<script>
+  const rng = (seed) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  // Fur drawn the medieval way: rows of short strokes, falling outward from the middle.
+  function hatch({ clip, box: [x0, y0, x1, y1], cx, step, len, color, w, seed, skip }) {
+    const r = rng(seed);
+    let d = '';
+    for (let y = y0, row = 0; y < y1; y += step * 0.8, row++) {
+      for (let x = x0 + (row % 2) * step / 2; x < x1; x += step) {
+        const px = x + (r() - 0.5) * step * 0.5, py = y + (r() - 0.5) * step * 0.4;
+        if (skip && skip(px, py)) continue;
+        const l = len * (0.7 + r() * 0.6), s = Math.max(-0.6, Math.min(0.6, (px - cx) / 90));
+        d += `M${px.toFixed(1)} ${py.toFixed(1)}l${(s * l).toFixed(1)} ${l.toFixed(1)}`;
+      }
+    }
+    return `<g clip-path="url(#${clip})"><path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/></g>`;
+  }
+
+  const HEAD = 'M 200 52 C 222 52 236 64 238 84 L 245 90 L 237 94 L 243 101 L 234 104 C 228 118 214 126 200 126 C 186 126 172 118 166 104 L 157 101 L 163 94 L 155 90 L 162 84 C 164 64 178 52 200 52 Z';
+  const BODY = 'M 170 116 C 156 138 152 172 156 212 L 244 212 C 248 172 244 138 230 116 Z';
+  const LEGS = 'M 168 140 C 166 162 168 184 170 198 L 186 198 C 186 182 186 162 186 142 Z M 214 142 C 214 162 214 182 214 196 L 230 196 C 232 184 234 162 232 140 Z';
+  const LEG_SIDES = 'M 168 140 C 166 162 168 184 170 198 M 186 198 C 186 182 186 162 186 142 M 214 142 C 214 162 214 182 214 196 M 230 196 C 232 184 234 162 232 140';
+  const TAIL = 'M 158 200 C 126 196 114 164 126 140 C 134 124 150 128 146 140';
+
+  function table(o) {
+    let arches = '';
+    for (let x = 110; x < 290; x += 24) arches += `M ${x} 238 Q ${x + 12} 226 ${x + 24} 238 `;
+    return `<path d="M 92 212 L 308 212 L 312 222 L 88 222 Z" fill="${o.table}"/>
+      <path d="M 98 222 L 302 222 L 302 238 L 98 238 Z" fill="${o.table2}"/>
+      <path d="${arches}" fill="none" stroke-width="${o.sw * 0.6}"/>
+      <path d="M 106 238 L 116 238 L 116 262 L 106 262 Z M 284 238 L 294 238 L 294 262 L 284 262 Z" fill="${o.table}"/>`;
+  }
+
+  function cat(p, o, ground) {
+    const sw = o.sw;
+    const face = (x, y) => ((x - 200) / 30) ** 2 + ((y - 92) / 24) ** 2 < 1;
+    return `
+    <defs>
+      <clipPath id="${p}-head"><path d="${HEAD}"/></clipPath>
+      <clipPath id="${p}-body"><path d="${BODY}"/></clipPath>
+      <clipPath id="${p}-legs"><path d="${LEGS}"/></clipPath>
+    </defs>
+    <g stroke="${o.ink}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round">
+      <path d="${TAIL}" fill="none" stroke-width="${sw * 2 + 8}"/>
+      <path d="${TAIL}" fill="none" stroke="${o.fur}" stroke-width="8"/>
+      <path d="${TAIL}" fill="none" stroke="${o.stripe}" stroke-width="8" stroke-dasharray="3.5 7" stroke-linecap="butt"/>
+      <path d="${BODY}" fill="${o.fur}"/>
+      ${hatch({ clip: `${p}-body`, box: [150, 118, 250, 212], cx: 200, ...o.h, seed: 3 })}
+      <path d="M 170 66 L 172 38 L 190 56 Z M 230 66 L 228 38 L 210 56 Z" fill="${o.fur}"/>
+      <path d="M 175 60 L 176 46 L 185 56 Z M 225 60 L 224 46 L 215 56 Z" fill="${o.inner}" stroke="none"/>
+      <path d="${HEAD}" fill="${o.fur}"/>
+      ${hatch({ clip: `${p}-head`, box: [152, 50, 248, 128], cx: 200, ...o.h, seed: 7, skip: face })}
+      <circle cx="186" cy="82" r="6.5" fill="${o.eye}" stroke-width="${sw * 0.7}"/>
+      <circle cx="214" cy="82" r="6.5" fill="${o.eye}" stroke-width="${sw * 0.7}"/>
+      <circle cx="189.5" cy="81" r="2.1" fill="${o.ink}" stroke="none"/>
+      <circle cx="217.5" cy="81" r="2.1" fill="${o.ink}" stroke="none"/>
+      <path d="M 177 72 Q 185 67 193 71 M 207 71 Q 215 67 223 72" fill="none" stroke-width="${sw * 0.7}"/>
+      <path d="M 201 80 C 200 88 199 93 195 97 Q 200 100 205 97 M 191 104 Q 200 101 209 104" fill="none" stroke-width="${sw * 0.75}"/>
+      <path d="M 196 104 Q 196 113 200 113 Q 204 113 204 104 Z" fill="${o.tongue || '#c4473a'}" stroke-width="${sw * 0.6}"/>
+      <path d="M 190 100 L 150 93 M 190 103 L 148 105 M 210 100 L 250 93 M 210 103 L 252 105" fill="none" stroke-width="${sw * 0.45}"/>
+      ${ground}
+      <path d="M 142 212 Q 172 207 200 214 Q 228 207 258 212 L 258 217 Q 228 212 200 219 Q 172 212 142 217 Z" fill="${o.cover}"/>
+      <path d="M 146 211 L 150 190 Q 175 186 200 194 L 200 213 Q 175 206 146 211 Z" fill="${o.page}"/>
+      <path d="M 254 211 L 250 190 Q 225 186 200 194 L 200 213 Q 225 206 254 211 Z" fill="${o.page}"/>
+      <path d="M 162 198 Q 178 195 194 200 M 158 203 Q 176 200 194 205 M 206 200 Q 224 194 242 197 M 206 205 Q 224 199 243 202" fill="none" stroke="${o.text}" stroke-width="${sw * 0.5}"/>
+      <rect x="152" y="192" width="7" height="7" fill="${o.initial}" stroke-width="${sw * 0.4}"/>
+      <path d="${LEGS}" fill="${o.fur}" stroke="none"/>
+      ${hatch({ clip: `${p}-legs`, box: [164, 140, 236, 200], cx: 200, ...o.h, seed: 11 })}
+      <path d="${LEG_SIDES}" fill="none"/>
+      <ellipse cx="178" cy="199" rx="11" ry="6" fill="${o.fur}"/>
+      <path d="M 224 198 L 258 138" fill="none" stroke-width="${sw * 0.7}"/>
+      <path d="M 260 134 C 251 141 243 155 239 169 C 249 161 257 149 260 134 Z" fill="${o.quill}" stroke-width="${sw * 0.7}"/>
+      <ellipse cx="222" cy="197" rx="11" ry="6" fill="${o.fur}"/>
+      <path d="M 175 197 l 0 4 M 181 197 l 0 4 M 219 195 l 0 4 M 225 195 l 0 4" fill="none" stroke-width="${sw * 0.5}"/>
+    </g>`;
+  }
+
+  const star = (x, y, r) => {
+    let d = '';
+    for (let i = 0; i < 12; i++) {
+      const a = (Math.PI / 6) * i - Math.PI / 2, rr = i % 2 ? r * 0.42 : r;
+      d += (i ? 'L' : 'M') + (x + rr * Math.cos(a)).toFixed(1) + ' ' + (y + rr * Math.sin(a)).toFixed(1);
+    }
+    return d + 'Z';
+  };
+  const moon = (x, y, r) => `M${x - r} ${y - r * 0.3} A${r} ${r} 0 0 0 ${x + r} ${y - r * 0.3} A${r * 0.95} ${r * 0.5} 0 0 1 ${x - r} ${y - r * 0.3}Z`;
+
+  // 1. Bestiary page
+  const A = { sw: 2.4, ink: '#2a2320', fur: '#e8e6e3', stripe: '#9a98a6', inner: '#c4664c', eye: '#fbf8f0', page: '#f5eedb', text: '#4a3b30',
+    initial: '#c4664c', cover: '#8a3d2c', quill: '#f6f2e8', table: '#a8553f', table2: '#c4664c', h: { step: 7, len: 6, color: '#5b5966', w: 1.1 } };
+  const skyA = [[44, 40, 's'], [92, 30, 'm'], [70, 84, 's'], [124, 62, 's'], [300, 38, 'm'], [352, 58, 's'], [328, 112, 's'], [366, 150, 'm'],
+    [286, 84, 's'], [40, 132, 'm'], [84, 172, 's'], [352, 196, 's'], [112, 124, 's'], [262, 52, 's'], [40, 200, 's']]
+    .map(([x, y, k]) => `<path d="${k === 's' ? star(x, y, 7) : moon(x, y, 7)}" fill="#d4ad4a"/>`).join('');
+  const svgA = `<rect width="400" height="260" fill="#2d4377"/>${skyA}
+    <rect y="234" width="400" height="26" fill="#c9907c"/><path d="M 0 234 L 400 234" stroke="#2a2320" stroke-width="1.5"/>
+    ${cat('a', A, table(A))}
+    <rect x="4" y="4" width="392" height="252" fill="none" stroke="#5f8c5c" stroke-width="8"/>
+    <rect x="12" y="12" width="376" height="236" fill="none" stroke="#c4664c" stroke-width="5"/>
+    <g fill="none" stroke="#2a2320"><rect x="0.75" y="0.75" width="398.5" height="258.5" stroke-width="1.5"/>
+      <rect x="8" y="8" width="384" height="244" stroke-width="1.2"/><rect x="14.5" y="14.5" width="371" height="231" stroke-width="1.2"/></g>`;
+
+  // 2. Hand-coloured woodcut
+  const B = { sw: 2.6, ink: '#1d1915', fur: '#f7f1e2', stripe: '#1d1915', inner: '#c63a2c', eye: '#fffaf0', page: '#fffaf0', text: '#1d1915',
+    initial: '#3f6fa8', cover: '#c63a2c', quill: '#fffaf0', table: '#f7f1e2', table2: '#a9c3dd', h: { step: 5.5, len: 6.5, color: '#1d1915', w: 1.15 } };
+  let groundB = '';
+  for (let y = 242; y < 258; y += 5) for (let x = 20 + (y % 2) * 9; x < 380; x += 18) groundB += `M ${x} ${y} l 10 0 `;
+  const svgB = `<rect width="400" height="260" fill="#f2e9d4"/>
+    <path d="${groundB}" stroke="#1d1915" stroke-width="1.2" stroke-linecap="round"/>
+    ${cat('b', B, table(B))}
+    <g fill="none" stroke="#1d1915"><rect x="6" y="6" width="388" height="248" stroke-width="2.6"/><rect x="11" y="11" width="378" height="238" stroke-width="1"/></g>`;
+
+  // 3. Church wall painting
+  const C = { sw: 2.2, ink: '#7a4430', fur: '#c99068', stripe: '#8a5236', inner: '#b9573f', eye: '#f3ead8', page: '#f1e7d2', text: '#7a4430',
+    initial: '#b9573f', cover: '#9a5a3c', quill: '#f1e7d2', table: '#b98a62', table2: '#d1a982', h: { step: 9, len: 6, color: '#8a5a3c', w: 1 } };
+  const tree = (x, base, h) => {
+    let leaves = '';
+    for (const a of [-160, -125, -90, -55, -20]) {
+      const rad = (a * Math.PI) / 180, lx = x + 2 + Math.cos(rad) * 15, ly = base - h + Math.sin(rad) * 15;
+      leaves += `<ellipse cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" rx="17" ry="4.5" transform="rotate(${a} ${lx.toFixed(1)} ${ly.toFixed(1)})" fill="#6f9f9b"/>`;
+    }
+    return `<path d="M ${x} ${base} C ${x + 4} ${base - h * 0.4} ${x - 4} ${base - h * 0.7} ${x + 2} ${base - h}" fill="none" stroke="#c9a45c" stroke-width="5" stroke-linecap="round"/>${leaves}`;
+  };
+  let grass = '';
+  for (let i = 0; i < 40; i++) { const x = 10 + ((i * 37) % 380), y = 214 + ((i * 23) % 40); grass += `M ${x} ${y} q 2 -6 5 -8 `; }
+  let rosettes = '';
+  for (let x = 20; x < 400; x += 44) rosettes += `<circle cx="${x}" cy="9" r="4" fill="none" stroke="#8d9bb0" stroke-width="1.6"/><circle cx="${x}" cy="9" r="1.2" fill="#8d9bb0"/>`;
+  const svgC = `<rect width="400" height="260" fill="#ebe1cf"/>
+    <ellipse cx="90" cy="70" rx="90" ry="40" fill="#e4d8c3" opacity=".7"/><ellipse cx="320" cy="140" rx="110" ry="50" fill="#e4d8c3" opacity=".6"/>
+    <rect width="400" height="18" fill="#ddd2bd"/>${rosettes}
+    <path d="M 0 198 C 80 190 160 202 240 194 C 300 188 360 198 400 192 L 400 260 L 0 260 Z" fill="#c4dccf"/>
+    <path d="${grass}" fill="none" stroke="#8db3a4" stroke-width="1.6" stroke-linecap="round"/>
+    ${tree(48, 206, 120)}${tree(352, 204, 104)}
+    ${cat('c', C, table(C))}
+    <rect width="400" height="260" fill="#f6efe3" opacity=".14"/>`;
+
+  // 4. Margin doodle
+  const D = { sw: 2.3, ink: '#3a2c22', fur: '#e3dccf', stripe: '#7d7468', inner: '#c4664c', eye: '#fbf6ea', page: '#fbf6ea', text: '#4a3a2e',
+    initial: '#2f4f8f', cover: '#2f4f8f', quill: '#fbf6ea', h: { step: 7, len: 6, color: '#6d645a', w: 1.05 } };
+  const r = rng(5);
+  let script = '';
+  for (let y = 40; y < 196; y += 12) {
+    let x = y < 66 ? 296 : 266;
+    while (x < 378) {
+      const n = 3 + Math.floor(r() * 5);
+      script += `M${x} ${y}`;
+      for (let i = 0; i < n && x < 376; i++) { script += 'q1.5 -6 3 0'; x += 3; }
+      x += 5;
+    }
+  }
+  let vine = '';
+  for (const [x, y, a] of [[38, 44, -30], [24, 86, 40], [40, 128, -30], [24, 172, 40], [38, 214, -30]])
+    vine += `<ellipse cx="${x}" cy="${y}" rx="9" ry="4" transform="rotate(${a} ${x} ${y})" fill="#7f9f6c" stroke="#3a2c22" stroke-width="1.2"/><circle cx="${x + (a < 0 ? -9 : 9)}" cy="${y + 8}" r="2.6" fill="#d4ad4a"/>`;
+  const mound = `<path d="M 116 228 C 136 204 264 204 284 228 Z" fill="#a7b884"/>
+    <path d="M 140 222 q 2 -6 4 -8 M 170 218 q 2 -6 4 -8 M 232 218 q 2 -6 4 -8 M 262 222 q 2 -6 4 -8" fill="none" stroke-width="${D.sw * 0.5}"/>`;
+  const svgD = `<defs><radialGradient id="vel" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#f4ead3"/><stop offset="1" stop-color="#e6d6b4"/></radialGradient></defs>
+    <rect width="400" height="260" fill="url(#vel)"/>
+    <path d="${script}" fill="none" stroke="#4a3a2e" stroke-width="1.3" stroke-linecap="round" opacity=".85"/>
+    <rect x="266" y="28" width="24" height="24" fill="#2f4f8f" stroke="#3a2c22" stroke-width="1.2"/>
+    <path d="M 272 46 L 278 32 L 284 46 M 274 41 L 282 41" fill="none" stroke="#c4664c" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 30 18 C 50 60 14 100 32 140 C 50 180 16 220 30 252" fill="none" stroke="#5f7f4c" stroke-width="2"/>${vine}
+    <g transform="translate(-28 0)">${cat('d', D, mound)}</g>`;
+
+  const OPTIONS = [
+    { title: '1. Bestiary page', text: 'A framed panel, deep blue with gold stars, ink lines and stroked fur. Like your starry cat and crocodile pictures.', svg: svgA },
+    { title: '2. Hand-coloured woodcut', text: 'Black ink on paper with lots of fur strokes and a few dabs of red and blue. Like the crowned cat.', svg: svgB },
+    { title: '3. Church wall painting', text: 'Faded plaster colours and soft brown lines. The calmest of the four. Like the fox and the geese.', svg: svgC },
+    { title: '4. Margin doodle', text: 'Just the cat on a plain page beside some writing, with no room around it. Like the creatures on the pink sheet.', svg: svgD },
+  ];
+  document.getElementById('grid').innerHTML = OPTIONS.map((o) =>
+    `<section class="card"><svg viewBox="0 0 400 260" role="img" aria-label="${o.title}">${o.svg}</svg><div class="txt"><h2>${o.title}</h2><p>${o.text}</p></div></section>`).join('');
+</script>
+</body>
+</html>

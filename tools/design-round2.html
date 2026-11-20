@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full-scene layouts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Texturina:wght@400;500;600;700&family=Fondamento&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #2a221b; --red: #a8432e; --blue: #2d4377; --gold: #d4ad4a; --card: #f8efd9; --text: 'Texturina', serif; --num: 'Fondamento', serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e6ded0; color: var(--ink); font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+  header { padding: 16px 24px 0; max-width: 1320px; }
+  h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; }
+  header p, section > p { margin: 0; opacity: 0.75; max-width: 1320px; }
+  section { padding: 18px 24px 6px; }
+  section > h2 { font-size: 17px; margin: 0 0 2px; font-weight: 650; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 16px; padding: 12px 0 8px; max-width: 1320px; }
+  .wgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; padding: 12px 0 8px; max-width: 1320px; }
+  .card { background: #fffdf8; border: 1.5px solid #c9bda9; border-radius: 12px; overflow: hidden; }
+  .txt { padding: 9px 13px 12px; font-size: 14px; }
+  .txt b { display: block; font-size: 15px; }
+
+  .scr { position: relative; aspect-ratio: 16 / 10; overflow: hidden; container-type: inline-size; font-family: var(--text); color: var(--ink); }
+  .scr > * { position: absolute; }
+  .scene { inset: 0; width: 100%; height: 100%; }
+  .beast { height: 64%; bottom: 4%; }
+  .ui { background: color-mix(in srgb, var(--card) 94%, transparent); border: 0.22cqw solid var(--ink); border-radius: 0.6cqw; box-shadow: 0 0.6cqw 1.6cqw rgba(0, 0, 0, 0.25); }
+  .ui > * { position: relative; }
+  .rubric { color: var(--red); letter-spacing: 0.1em; font-weight: 600; }
+  .time { font-family: var(--num); line-height: 1; }
+  .name { font-weight: 700; }
+  .btn { display: inline-block; border: 0.2cqw solid var(--ink); border-radius: 99cqw; padding: 0.25cqw 1.5cqw; background: #fffaf0; font-weight: 600; }
+  .btn.main { background: var(--red); color: #fff6e6; border-color: var(--red); }
+  .row { display: flex; gap: 0.8cqw; align-items: center; }
+  .task { border-bottom: 0.12cqw solid rgba(42, 34, 27, 0.22); padding: 0.35cqw 0; }
+  .box { display: inline-block; width: 1.2cqw; height: 1.2cqw; border: 0.18cqw solid var(--ink); margin-right: 0.7cqw; vertical-align: -0.1cqw; }
+  .box.done { background: var(--ink); }
+  .pig { border: 0.22cqw dashed #f2d27a; border-radius: 50%; color: #f2d27a; display: grid; place-items: center; text-align: center; line-height: 1.1; font-size: 0.95cqw; width: 7cqw; height: 7cqw; }
+  .chip { background: color-mix(in srgb, var(--card) 92%, transparent); border: 0.18cqw solid var(--ink); border-radius: 99cqw; padding: 0.2cqw 1.1cqw; font-size: 1.1cqw; font-weight: 600; }
+
+  /* 1. Side panel */
+  .s1 .beast { left: 12%; }
+  .s1 .ui { right: 2.2%; top: 4%; bottom: 4%; width: 29%; padding: 2cqw 1.8cqw; }
+  .s1 .name { font-size: 1.9cqw; margin-bottom: 2.4cqw; }
+  .s1 .rubric { font-size: 1.15cqw; }
+  .s1 .time { font-size: 8.4cqw; margin: 0.4cqw 0 1cqw; }
+  .s1 .row { font-size: 1.2cqw; margin-bottom: 2.2cqw; }
+  .s1 .task { font-size: 1.25cqw; }
+  .s1 .pig { left: 50%; bottom: 7%; }
+
+  /* 2. Top banner */
+  .s2 .beast { left: 30%; height: 60%; }
+  .s2 .banner { left: 50%; top: 3.5%; transform: translateX(-50%); width: 60%; height: 15%; }
+  .s2 .banner svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .s2 .banner .in { position: absolute; inset: 0 14% ; display: flex; align-items: center; justify-content: center; gap: 2.4cqw; }
+  .s2 .time { font-size: 6.6cqw; }
+  .s2 .rubric { font-size: 1.1cqw; }
+  .s2 .in .row { font-size: 1.15cqw; }
+  .s2 .ui.tasks { right: 2.5%; bottom: 5%; width: 24%; padding: 1.2cqw 1.4cqw; }
+  .s2 .ui.tasks .rubric { font-size: 1cqw; margin-bottom: 0.4cqw; }
+  .s2 .task { font-size: 1.15cqw; }
+  .s2 .name { left: 2.5%; top: 4%; font-size: 1.7cqw; color: #f8efd9; }
+  .s2 .chips { left: 2.5%; top: 9.5%; display: flex; gap: 0.6cqw; }
+  .s2 .pig { left: 68%; bottom: 6%; }
+
+  /* 3. Floating card, like the old pomocat */
+  .s3 .beast { left: 47%; }
+  .s3 .dark { left: 6%; top: 10%; width: 36%; bottom: 10%; background: rgba(18, 22, 44, 0.62); border: 0.22cqw solid var(--gold); border-radius: 0.8cqw; color: #f8efd9; padding: 2cqw 2.2cqw; text-align: center; backdrop-filter: blur(2px); }
+  .s3 .dark > * { position: relative; }
+  .s3 .name { font-size: 1.8cqw; color: var(--gold); margin-bottom: 1.6cqw; }
+  .s3 .rubric { color: #f2a48c; font-size: 1.1cqw; }
+  .s3 .time { font-size: 9cqw; margin: 0.3cqw 0 1cqw; }
+  .s3 .row { justify-content: center; font-size: 1.2cqw; margin-bottom: 2cqw; }
+  .s3 .btn { background: transparent; color: #f8efd9; border-color: #f8efd9; }
+  .s3 .btn.main { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .s3 .task { text-align: left; font-size: 1.2cqw; border-bottom-color: rgba(248, 239, 217, 0.25); }
+  .s3 .box { border-color: #f8efd9; } .s3 .box.done { background: #f8efd9; }
+  .s3 .pig { left: 82%; bottom: 7%; }
+
+  /* ── widgets at real size ── */
+  .desk { position: relative; height: 470px; background: linear-gradient(160deg, #a7b8ca, #cdbda4); display: grid; place-items: center; overflow: hidden; }
+  .menubar { position: absolute; left: 0; right: 0; top: 0; height: 24px; background: rgba(250, 247, 240, 0.85); display: flex; justify-content: flex-end; align-items: center; gap: 14px; padding: 0 12px; font: 13px system-ui; }
+  .menubar .mb { display: flex; align-items: center; gap: 5px; font-family: var(--num); font-size: 15px; }
+  .w { position: relative; overflow: hidden; border-radius: 12px; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3); font-family: var(--text); color: var(--ink); }
+  .w .scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .w img.beast { position: absolute; }
+  /* W1: scene window */
+  .w1 { width: 420px; height: 270px; border: 3px solid var(--gold); }
+  .w1 img.beast { left: -6px; bottom: 4px; height: 230px; }
+  .w1 .side { position: absolute; right: 14px; top: 16px; width: 170px; text-align: center; color: #f8efd9; }
+  .w1 .rubric { color: #f2a48c; font-size: 12px; }
+  .w1 .time { font-size: 58px; color: #fff3d6; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); }
+  .w1 .tk { font-size: 13px; margin: 4px 0 10px; }
+  .w1 .btn { font-size: 13px; padding: 2px 14px; border-width: 2px; background: transparent; color: #f8efd9; border-color: #f8efd9; }
+  /* W2: scene with a parchment strip */
+  .w2 { width: 420px; height: 290px; border: 3px solid var(--ink); background: var(--card); }
+  .w2 .pic { position: absolute; left: 0; right: 0; top: 0; height: 200px; overflow: hidden; border-bottom: 3px solid var(--ink); }
+  .w2 .pic img.beast { left: 120px; bottom: 2px; height: 190px; }
+  .w2 .strip { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; display: flex; align-items: center; gap: 14px; padding: 0 14px; }
+  .w2 .time { font-size: 50px; }
+  .w2 .tk { flex: 1; font-size: 14px; line-height: 1.2; }
+  .w2 .tk .rubric { display: block; font-size: 11px; }
+  .w2 .btn { font-size: 13px; padding: 2px 14px; border-width: 2px; }
+  /* W3: tall card */
+  .w3 { width: 290px; height: 420px; border: 3px solid var(--ink); background: var(--card); }
+  .w3 .pic { position: absolute; left: 0; right: 0; top: 0; height: 210px; overflow: hidden; border-bottom: 3px solid var(--ink); }
+  .w3 .pic img.beast { left: 26px; bottom: 2px; height: 200px; }
+  .w3 .body { position: absolute; left: 16px; right: 16px; top: 220px; text-align: center; }
+  .w3 .rubric { font-size: 12px; }
+  .w3 .time { font-size: 60px; margin: 0 0 6px; }
+  .w3 .task { text-align: left; font-size: 14px; }
+  .w3 .box { width: 12px; height: 12px; border-width: 2px; margin-right: 7px; }
+  .w3 .btn { font-size: 13px; padding: 2px 14px; border-width: 2px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Round two: the scene fills the screen</h1>
+  <p>Like the old pomocat: the picture is the whole background, and the timer and tasks sit on top of it. Readable gothic for words, the scribe's hand for numbers. The dashed circle is where the hungry pig would sit.</p>
+</header>
+<section>
+  <h2>Main screen, while you focus</h2>
+  <div class="grid" id="screens"></div>
+</section>
+<section>
+  <h2>Mac widget, at real size</h2>
+  <p>Bigger panels this time, each a little window onto the same scene. The countdown is also in the menu bar.</p>
+  <div class="wgrid" id="widgets"></div>
+</section>
+
+<script>
+  const CAT = '../assets/art/cat-writing.svg';
+  const rng = (s) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const star = (x, y, r) => {
+    let d = '';
+    for (let i = 0; i < 12; i++) {
+      const a = (Math.PI / 6) * i - Math.PI / 2, rr = i % 2 ? r * 0.42 : r;
+      d += (i ? 'L' : 'M') + (x + rr * Math.cos(a)).toFixed(1) + ' ' + (y + rr * Math.sin(a)).toFixed(1);
+    }
+    return d + 'Z';
+  };
+  const moon = (x, y, r) => `M${x - r} ${y - r * 0.3} A${r} ${r} 0 0 0 ${x + r} ${y - r * 0.3} A${r * 0.95} ${r * 0.5} 0 0 1 ${x - r} ${y - r * 0.3}Z`;
+
+  // The bestiary scene, full bleed: night-blue sky with gold stars and moons,
+  // rolling hills, a far castle, stylised trees and a flowery meadow.
+  function scene(seed) {
+    const r = rng(seed);
+    let sky = '';
+    for (let i = 0; i < 34; i++) {
+      const x = r() * 1600, y = r() * 640;
+      sky += i % 8 === 0 ? `<path d="${moon(x, y, 13)}" fill="#d4ad4a"/>` : `<path d="${star(x, y, 6 + r() * 5)}" fill="#d4ad4a"/>`;
+    }
+    let flowers = '';
+    for (let i = 0; i < 36; i++) {
+      const x = r() * 1600, y = 830 + r() * 160, c = r() < 0.5 ? '#f3e6c4' : '#c8553c';
+      flowers += `<g fill="${c}">${[0, 72, 144, 216, 288].map((a) => `<circle cx="${(x + Math.cos(a * Math.PI / 180) * 4).toFixed(1)}" cy="${(y + Math.sin(a * Math.PI / 180) * 4).toFixed(1)}" r="2.6"/>`).join('')}</g><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.8" fill="#d4ad4a"/>`;
+    }
+    const tree = (x, h, s = 1) => `<g transform="translate(${x} ${860 - h}) scale(${s})"><path d="M -6 ${h} C -4 ${h * 0.6} -8 ${h * 0.3} -2 0 L 4 0 C 8 ${h * 0.3} 4 ${h * 0.6} 6 ${h} Z" fill="#b9874e" stroke="#2a221b" stroke-width="3"/>
+      ${[[-40, -20, 46], [36, -10, 42], [0, -54, 50]].map(([dx, dy, rr]) => `<circle cx="${dx}" cy="${dy}" r="${rr}" fill="#5e9a8f" stroke="#2a221b" stroke-width="3"/>`).join('')}
+      ${[[-48, -26], [-30, -10], [30, -16], [44, -2], [-8, -64], [12, -48]].map(([dx, dy]) => `<path d="M ${dx} ${dy} q 6 -8 12 0" fill="none" stroke="#2a221b" stroke-width="2.5"/>`).join('')}</g>`;
+    const castle = `<g transform="translate(1180 600)" stroke="#2a221b" stroke-width="3" fill="#c98a6a">
+      <path d="M 0 80 L 0 20 L 12 20 L 12 8 L 24 8 L 24 20 L 36 20 L 36 8 L 48 8 L 48 20 L 60 20 L 60 80 Z"/>
+      <path d="M 60 80 L 60 -10 L 72 -10 L 72 -22 L 84 -22 L 84 -10 L 96 -10 L 96 80 Z"/>
+      <path d="M 96 80 L 96 30 L 130 30 L 130 80 Z"/><path d="M 74 -22 L 78 -48 L 82 -22" fill="#a8432e"/>
+      <path d="M 24 80 L 24 56 C 24 46 36 46 36 56 L 36 80 Z" fill="#2a221b"/></g>`;
+    return `<svg class="scene" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+      <rect width="1600" height="1000" fill="#2d4377"/>${sky}
+      <path d="M 0 720 C 220 640 420 700 640 660 C 860 620 1060 690 1280 640 C 1420 610 1520 640 1600 630 L 1600 1000 L 0 1000 Z" fill="#6f9a6a" stroke="#2a221b" stroke-width="3"/>
+      ${castle}
+      <path d="M 0 830 C 260 790 520 840 800 810 C 1080 780 1340 830 1600 800 L 1600 1000 L 0 1000 Z" fill="#8fb07a" stroke="#2a221b" stroke-width="3"/>
+      ${tree(90, 230)}${tree(1480, 200, 0.85)}${flowers}
+    </svg>`;
+  }
+
+  const tasks = `<div class="task"><span class="box done"></span>Outline chapter three</div><div class="task"><span class="box"></span>Draft the opening</div>`;
+  const beast = `<img class="beast" src="${CAT}" alt="">`;
+  const pig = '<div class="pig">hungry<br>pig</div>';
+  const banner = `<svg viewBox="0 0 600 100" preserveAspectRatio="none"><path d="M 0 18 L 50 18 L 50 0 L 550 0 L 550 18 L 600 18 L 576 58 L 600 98 L 520 98 L 520 100 L 80 100 L 80 98 L 0 98 L 24 58 Z" fill="#a8432e" stroke="#2a221b" stroke-width="2"/><path d="M 50 6 L 550 6 L 550 92 L 50 92 Z" fill="#f8efd9" stroke="#d4ad4a" stroke-width="3"/></svg>`;
+
+  const SCREENS = [
+    ['s1', `${scene(3)}${beast}${pig}<div class="ui"><div class="name">Productive Possum</div><div class="rubric">FOCUS</div><div class="time">25:00</div><div class="row"><span class="btn main">Pause</span><span class="btn">Skip</span></div><div class="rubric" style="font-size:1cqw;margin-bottom:.4cqw">THIS SESSION</div>${tasks}</div>`,
+      '1. Side panel', 'The scene fills the screen, with a parchment panel docked on the right holding the timer and this session\'s tasks. Closest to what the app does now.'],
+    ['s2', `${scene(5)}${beast}${pig}<div class="name">Productive Possum</div><div class="chips"><span class="chip">Level 3</span><span class="chip">4-day streak</span></div>
+      <div class="banner">${banner}<div class="in"><div><div class="rubric">FOCUS</div><div class="row"><span class="btn main">Pause</span><span class="btn">Skip</span></div></div><div class="time">25:00</div></div></div>
+      <div class="ui tasks"><div class="rubric">THIS SESSION</div>${tasks}</div>`,
+      '2. Top banner', 'The timer sits on a red banner across the top, like a heading in a manuscript. Tasks tuck into a small card in the corner. Your beast takes the middle of the screen.'],
+    ['s3', `${scene(7)}${beast}${pig}<div class="dark"><div class="name">Productive Possum</div><div class="rubric">FOCUS</div><div class="time">25:00</div><div class="row"><span class="btn main">Pause</span><span class="btn">Skip</span></div>${tasks}</div>`,
+      '3. Floating card', 'Like the old pomocat: a dark see-through card floats over the scene with everything in it. Gold edging to match the stars.'],
+  ];
+  document.getElementById('screens').innerHTML = SCREENS.map(([cls, inner, title, note]) =>
+    `<div class="card"><div class="scr ${cls}">${inner}</div><div class="txt"><b>${title}</b>${note}</div></div>`).join('');
+
+  const menubar = `<div class="menubar"><span>Wed 20 Nov</span><span class="mb"><svg viewBox="0 0 14 14" width="14" height="14"><path d="M 3 2 L 11 2 L 8 7 L 11 12 L 3 12 L 6 7 Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>18:24</span></div>`;
+  const WIDGETS = [
+    [`<div class="w w1">${scene(11)}${beast}<div class="side"><div class="rubric">FOCUS</div><div class="time">18:24</div><div class="tk">Draft the opening</div><span class="btn">Pause</span></div></div>`,
+      'A. Scene window', 'A little window onto the scene: your beast at its desk, with the time written large in the sky beside it.'],
+    [`<div class="w w2"><div class="pic">${scene(13)}${beast}</div><div class="strip"><div class="time">18:24</div><div class="tk"><span class="rubric">NOW</span>Draft the opening</div><span class="btn">Pause</span></div></div>`,
+      'B. Scene and strip', 'The scene on top and a parchment strip underneath with the time, the task and pause. Easiest to read at a glance.'],
+    [`<div class="w w3"><div class="pic">${scene(17)}${beast}</div><div class="body"><div class="rubric">FOCUS</div><div class="time">18:24</div>${tasks}<span class="btn">Pause</span></div></div>`,
+      'C. Tall card', 'A portrait card: the scene, the time, and this session\'s tasks you can tick off without opening the app.'],
+  ];
+  document.getElementById('widgets').innerHTML = WIDGETS.map(([inner, title, note]) =>
+    `<div class="card"><div class="desk">${menubar}${inner}</div><div class="txt"><b>${title}</b>${note}</div></div>`).join('');
+</script>
+</body>
+</html>

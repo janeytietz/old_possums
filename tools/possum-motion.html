@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Productive Possum motion test</title>
+  <style>
+    :root { --ink: #211d18; --paper: #f1e9d8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.4 Georgia, serif; }
+    main { max-width: 1120px; margin: auto; padding: 18px; }
+    .controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    button { border: 2px solid var(--ink); background: #fff8e9; padding: 6px 14px; font: inherit; cursor: pointer; }
+    button.on { background: var(--ink); color: var(--paper); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    figure { margin: 0; border: 2px solid var(--ink); background: #f8efdc; }
+    figure svg, figure img { width: 100%; display: block; }
+    figcaption { border-top: 2px solid var(--ink); padding: 7px 10px; }
+
+    #possum #head, #possum #writing-arm, #possum #resting-arm, #possum #tail {
+      transform-box: view-box;
+    }
+    #possum #head { transform-origin: 510px 370px; }
+    #possum #writing-arm { transform-origin: 520px 430px; }
+    #possum #resting-arm { transform-origin: 620px 485px; }
+    #possum #tail { transform-origin: 858px 650px; }
+    #possum #lids { display: inline; }
+    #possum #lids ellipse, #possum #lids .shut { display: none; }
+
+    .moving #writing-arm { animation: write 2.2s steps(1, end) infinite; }
+    .moving #head { animation: look 11s steps(1, end) infinite; }
+    .moving #tail { animation: flick 13s steps(1, end) infinite; }
+    .moving #lids ellipse { display: inline !important; animation: blink 7s steps(1, end) infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes write {
+      0%, 100% { transform: rotate(0); }
+      22% { transform: rotate(-1.2deg) translate(2px, 1px); }
+      44% { transform: rotate(.4deg) translate(5px, 0); }
+      66% { transform: rotate(-.8deg) translate(7px, 1px); }
+      84% { transform: rotate(.2deg) translate(3px, 0); }
+    }
+    @keyframes look {
+      0%, 64%, 100% { transform: rotate(0); }
+      68%, 82% { transform: rotate(2deg) translate(1px, 3px); }
+      86%, 92% { transform: rotate(.8deg) translate(0, 1px); }
+    }
+    @keyframes flick {
+      0%, 78%, 100% { transform: rotate(0); }
+      82% { transform: rotate(-3deg); }
+      88% { transform: rotate(1.5deg); }
+      94% { transform: rotate(-.5deg); }
+    }
+    @keyframes blink {
+      0%, 95%, 100% { transform: scaleY(0); }
+      97% { transform: scaleY(1); }
+    }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="controls">
+      <button id="move" class="on">Moving</button>
+      <button id="still">Still</button>
+      <button id="pieces">Show pieces</button>
+    </div>
+    <div class="grid">
+      <figure><div id="host"></div><figcaption>Layered SVG: head, writing arm, resting arm, tail and eyelids.</figcaption></figure>
+      <figure><img src="art-src/possum-writing-source.jpg" alt=""><figcaption>Approved single-tail source.</figcaption></figure>
+    </div>
+  </main>
+  <script>
+    const host = document.getElementById('host');
+    fetch('../assets/art/possum-writing.svg').then((r) => r.text()).then((text) => {
+      host.innerHTML = text;
+      const svg = host.querySelector('svg');
+      svg.id = 'possum';
+      svg.classList.add('moving');
+      move.onclick = () => { svg.classList.add('moving'); move.classList.add('on'); still.classList.remove('on'); };
+      still.onclick = () => { svg.classList.remove('moving'); still.classList.add('on'); move.classList.remove('on'); };
+      pieces.onclick = () => {
+        const on = pieces.classList.toggle('on');
+        svg.querySelector('#static').style.opacity = on ? '.28' : '';
+        svg.querySelector('#head').style.opacity = on ? '.85' : '';
+        svg.querySelector('#writing-arm').style.filter = on ? 'hue-rotate(90deg) saturate(2)' : '';
+        svg.querySelector('#resting-arm').style.filter = on ? 'hue-rotate(180deg) saturate(2)' : '';
+        svg.querySelector('#tail').style.filter = on ? 'hue-rotate(260deg) saturate(2)' : '';
+      };
+    });
+  </script>
+</body>
+</html>

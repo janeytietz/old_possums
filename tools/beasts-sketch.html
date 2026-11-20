@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartoony beasts</title>
+<style>
+  :root { --ink: #3b2f27; --bg: #efe8dc; --paper: #fffdf8; --line: #cbbfae; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+  header { padding: 18px 24px 0; max-width: 1240px; }
+  h1 { font-size: 21px; margin: 0 0 4px; font-weight: 650; }
+  header p { margin: 0; opacity: 0.75; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; padding: 14px 24px 28px; max-width: 1240px; }
+  .card { background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .card svg { display: block; width: 100%; height: auto; border-bottom: 1.5px solid var(--line); }
+  .txt { padding: 10px 14px 14px; }
+  h2 { margin: 0 0 2px; font-size: 16px; font-weight: 650; }
+  .txt p { margin: 0; font-size: 14px; opacity: 0.8; }
+  @media (max-width: 760px) { header { padding: 14px 16px 0; } .grid { padding: 12px 16px 24px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Step 2, again: how cartoony?</h1>
+  <p>Weird bodies, friendly faces. Your cat and a snail-hare in each, so you can see how other animals would look.</p>
+</header>
+<main class="grid" id="grid"></main>
+
+<script>
+  const INK = '#2f2621';
+  const STYLES = {
+    friendly: { sw: 2.8, title: '1. A little cartoony', text: 'Still looks medieval: sideways glances, a few fur strokes, thin whiskers. Faces are kind instead of strange.' },
+    goofy: { sw: 3.6, title: '2. Properly cartoony', text: 'Big round eyes, wide grins, chunky outlines. The silliest and most game-like.' },
+    sleepy: { sw: 2.6, title: '3. Soft and sleepy', text: 'Closed happy eyes, small smiles, rounder shapes. The calmest, good company while you work.' },
+  };
+
+  function eyes(v, lx, rx, y, s = 1) {
+    if (v === 'friendly') return `
+      <path d="M ${lx - 6 * s} ${y} Q ${lx} ${y - 6 * s} ${lx + 6 * s} ${y} Q ${lx} ${y + 4 * s} ${lx - 6 * s} ${y} Z M ${rx - 6 * s} ${y} Q ${rx} ${y - 6 * s} ${rx + 6 * s} ${y} Q ${rx} ${y + 4 * s} ${rx - 6 * s} ${y} Z" fill="#fffaf0" stroke-width="1.8"/>
+      <circle cx="${lx + 2.4 * s}" cy="${y - 0.6}" r="${3.3 * s}" fill="${INK}" stroke="none"/><circle cx="${rx + 2.4 * s}" cy="${y - 0.6}" r="${3.3 * s}" fill="${INK}" stroke="none"/>`;
+    if (v === 'goofy') return `
+      <circle cx="${lx}" cy="${y - 2}" r="${9 * s}" fill="#fffaf0" stroke-width="2.4"/><circle cx="${rx}" cy="${y - 2}" r="${9 * s}" fill="#fffaf0" stroke-width="2.4"/>
+      <circle cx="${lx + 3 * s}" cy="${y - 4}" r="${5.6 * s}" fill="${INK}" stroke="none"/><circle cx="${rx + 3 * s}" cy="${y - 4}" r="${5.6 * s}" fill="${INK}" stroke="none"/>
+      <circle cx="${lx + 4.5 * s}" cy="${y - 6}" r="${1.7 * s}" fill="#fff" stroke="none"/><circle cx="${rx + 4.5 * s}" cy="${y - 6}" r="${1.7 * s}" fill="#fff" stroke="none"/>`;
+    return `<path d="M ${lx - 6 * s} ${y - 1} Q ${lx} ${y + 5 * s} ${lx + 6 * s} ${y - 1} M ${rx - 6 * s} ${y - 1} Q ${rx} ${y + 5 * s} ${rx + 6 * s} ${y - 1}" fill="none" stroke-width="2.6"/>`;
+  }
+
+  function mouth(v, cx, y, s = 1) {
+    const cheeks = `<ellipse cx="${cx - 17 * s}" cy="${y - 2}" rx="${5 * s}" ry="${3.2 * s}" fill="#ef9f92" opacity=".6" stroke="none"/><ellipse cx="${cx + 17 * s}" cy="${y - 2}" rx="${5 * s}" ry="${3.2 * s}" fill="#ef9f92" opacity=".6" stroke="none"/>`;
+    if (v === 'friendly') return `<path d="M ${cx - 6 * s} ${y} Q ${cx} ${y + 5 * s} ${cx + 6 * s} ${y}" fill="none" stroke-width="2"/>`;
+    if (v === 'goofy') return `${cheeks}<path d="M ${cx - 9 * s} ${y - 1} Q ${cx} ${y + 13 * s} ${cx + 9 * s} ${y - 1} Z" fill="#6b2d26" stroke-width="2.4"/>
+      <path d="M ${cx - 4.5 * s} ${y + 5.5 * s} Q ${cx} ${y + 2 * s} ${cx + 4.5 * s} ${y + 5.5 * s} Q ${cx} ${y + 9 * s} ${cx - 4.5 * s} ${y + 5.5 * s} Z" fill="#ef8f86" stroke="none"/>`;
+    return `${cheeks}<path d="M ${cx - 6 * s} ${y} Q ${cx - 3 * s} ${y + 4 * s} ${cx} ${y} Q ${cx + 3 * s} ${y + 4 * s} ${cx + 6 * s} ${y}" fill="none" stroke-width="2.2"/>`;
+  }
+
+  // Your cat: gangly, long neck, ringed tail. Drawn in a 200 x 200 box, feet at y = 180.
+  function cat(v) {
+    const sw = STYLES[v].sw, fur = '#e8a25c', cream = '#fbeedb';
+    const round = v === 'sleepy';
+    const body = round ? 'M 66 180 C 58 138 72 102 100 98 C 128 102 142 138 134 180 Z' : 'M 72 180 C 66 140 78 104 100 98 C 122 104 134 140 128 180 Z';
+    const fur1 = v === 'friendly' ? `<path d="M 80 132 l -3 6 M 78 148 l -3 6 M 120 132 l 3 6 M 122 148 l 3 6 M 96 108 l 0 6 M 104 108 l 0 6" fill="none" stroke-width="1.6"/>` : '';
+    const whiskers = v === 'friendly' ? `<path d="M 86 80 L 62 76 M 86 84 L 62 86 M 114 80 L 138 76 M 114 84 L 138 86" fill="none" stroke-width="1.2"/>`
+      : `<path d="M 84 80 L 70 77 M 116 80 L 130 77" fill="none" stroke-width="1.8"/>`;
+    return `<g stroke="${INK}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M 126 172 C 160 170 170 140 158 118 C 152 108 142 112 146 120" fill="none" stroke-width="${sw * 2 + 8}"/>
+      <path d="M 126 172 C 160 170 170 140 158 118 C 152 108 142 112 146 120" fill="none" stroke="${fur}" stroke-width="8"/>
+      <path d="M 126 172 C 160 170 170 140 158 118 C 152 108 142 112 146 120" fill="none" stroke="#c47a3a" stroke-width="8" stroke-dasharray="4 8" stroke-linecap="butt"/>
+      <path d="${body}" fill="${fur}"/>
+      <path d="M 100 104 C 90 120 88 150 92 178 L 108 178 C 112 150 110 120 100 104 Z" fill="${cream}" stroke="none"/>
+      ${fur1}
+      <path d="M 84 124 C 83 150 84 166 85 178 M 96 178 C 96 164 96 146 96 126 M 104 126 C 104 146 104 164 104 178 M 115 178 C 116 166 117 150 116 124" fill="none"/>
+      <ellipse cx="90" cy="179" rx="9" ry="5" fill="${fur}"/><ellipse cx="110" cy="179" rx="9" ry="5" fill="${fur}"/>
+      <path d="M 78 58 L 79 30 L 95 46 Z M 122 58 L 121 30 L 105 46 Z" fill="${fur}"/>
+      <path d="M 82 52 L 83 38 L 91 46 Z M 118 52 L 117 38 L 109 46 Z" fill="#ef9f92" stroke="none"/>
+      <path d="${round ? 'M 72 72 C 72 50 86 42 100 42 C 114 42 128 50 128 72 C 128 90 114 98 100 98 C 86 98 72 90 72 72 Z' : 'M 75 72 C 75 52 87 44 100 44 C 113 44 125 52 125 72 C 125 88 113 96 100 96 C 87 96 75 88 75 72 Z'}" fill="${fur}"/>
+      ${v === 'friendly' ? '<path d="M 94 50 l 1 7 M 100 49 l 0 8 M 106 50 l -1 7" fill="none" stroke="#c47a3a" stroke-width="2"/>' : ''}
+      <ellipse cx="100" cy="84" rx="12" ry="8" fill="${cream}" stroke="none"/>
+      ${eyes(v, 89, 111, 71)}
+      <path d="M 97 79 L 103 79 L 100 82.5 Z" fill="#d9776f" stroke-width="1.4"/>
+      ${mouth(v, 100, 86)}
+      ${whiskers}
+    </g>`;
+  }
+
+  // Snail-hare: a hare's front half living in a snail shell.
+  function snailHare(v) {
+    const sw = STYLES[v].sw, fur = '#cfa77d', cream = '#f6e9d6';
+    let spiral = '';
+    for (let i = 0; i <= 120; i++) {
+      const t = (i / 120) * Math.PI * 5.2, r = 3 + t * 2.45;
+      spiral += `${i ? 'L' : 'M'} ${(124 + r * Math.cos(t)).toFixed(1)} ${(128 + r * Math.sin(t)).toFixed(1)} `;
+    }
+    return `<g stroke="${INK}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M 36 182 C 60 170 152 168 182 182 Z" fill="#b9c8b4"/>
+      <circle cx="124" cy="128" r="45" fill="#d99aa7"/>
+      <path d="${spiral}" fill="none" stroke="#9c5866" stroke-width="${sw * 0.8}"/>
+      ${v === 'friendly' ? '<path d="M 150 104 l 5 -3 M 158 128 l 6 0 M 150 154 l 5 3" fill="none" stroke-width="1.6"/>' : ''}
+      <path d="M 52 66 C 42 42 44 18 52 8 C 62 18 64 42 62 64 Z M 68 64 C 70 40 78 20 90 14 C 94 28 86 48 76 66 Z" fill="${fur}"/>
+      <path d="M 53 56 C 48 40 49 26 53 18 C 57 28 58 42 57 56 Z M 72 56 C 74 40 79 28 86 22 C 87 32 82 46 76 58 Z" fill="#ef9f92" stroke="none"/>
+      <path d="M 46 102 C 40 126 42 152 48 178 L 82 178 C 80 152 80 126 80 102 Z" fill="${fur}"/>
+      <path d="M 63 108 C 54 124 54 152 57 178 L 71 178 C 74 152 72 124 63 108 Z" fill="${cream}" stroke="none"/>
+      <ellipse cx="54" cy="179" rx="9" ry="5" fill="${fur}"/><ellipse cx="74" cy="179" rx="9" ry="5" fill="${fur}"/>
+      <path d="${v === 'sleepy' ? 'M 40 86 C 40 68 50 60 64 60 C 78 60 88 68 88 86 C 88 100 78 108 64 108 C 50 108 40 100 40 86 Z' : 'M 43 86 C 43 69 52 61 64 61 C 76 61 85 69 85 86 C 85 99 76 107 64 107 C 52 107 43 99 43 86 Z'}" fill="${fur}"/>
+      <ellipse cx="64" cy="97" rx="11" ry="7.5" fill="${cream}" stroke="none"/>
+      ${eyes(v, 54, 74, 84, 0.9)}
+      <path d="M 61 91 L 67 91 L 64 94.5 Z" fill="#d9776f" stroke-width="1.4"/>
+      ${mouth(v, 64, 98, 0.85)}
+    </g>`;
+  }
+
+  function card(v) {
+    let grass = '';
+    for (let x = 30; x < 380; x += 26) grass += `M ${x} ${200 + ((x * 7) % 9)} q 2 -6 5 -8 `;
+    const stars = [[40, 40], [360, 36], [330, 82], [200, 30], [60, 110]]
+      .map(([x, y]) => `<path d="M ${x} ${y - 6} L ${x + 1.8} ${y - 1.8} L ${x + 6} ${y} L ${x + 1.8} ${y + 1.8} L ${x} ${y + 6} L ${x - 1.8} ${y + 1.8} L ${x - 6} ${y} L ${x - 1.8} ${y - 1.8} Z" fill="#d4ad4a"/>`).join('');
+    return `<svg viewBox="0 0 400 230" role="img" aria-label="${STYLES[v].title}">
+      <rect width="400" height="230" fill="#f4ead4"/>${stars}
+      <path d="M 8 204 C 100 184 300 184 392 204 L 392 222 L 8 222 Z" fill="#a9bb87"/>
+      <path d="${grass}" fill="none" stroke="${INK}" stroke-width="1.4" stroke-linecap="round"/>
+      <g transform="translate(24 16)">${cat(v)}</g>
+      <g transform="translate(196 20)">${snailHare(v)}</g>
+      <rect x="4" y="4" width="392" height="222" fill="none" stroke="#b9573f" stroke-width="4"/>
+      <rect x="10" y="10" width="380" height="210" fill="none" stroke="#5f8c5c" stroke-width="2"/>
+    </svg>`;
+  }
+
+  document.getElementById('grid').innerHTML = Object.keys(STYLES).map((v) =>
+    `<section class="card">${card(v)}<div class="txt"><h2>${STYLES[v].title}</h2><p>${STYLES[v].text}</p></div></section>`).join('');
+</script>
+</body>
+</html>
