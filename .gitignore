@@ -1,1 +1,8 @@
 .DS_Store
+
+# Mac app build output
+mac/.build/
+mac/build/
+
+# Art pipeline logs
+*.log

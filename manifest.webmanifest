@@ -1,0 +1,28 @@
+{
+  "name": "Old Possum’s Book of Productivity",
+  "short_name": "Old Possum",
+  "description": "A calm focus timer where your possum writes at its desk beside you, with a planner and buddy rooms for body doubling.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1e1c8",
+  "theme_color": "#f1e1c8",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

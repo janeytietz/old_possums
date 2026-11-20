@@ -1,111 +1,353 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Old Possum's Book of Productive Cats</title>
-  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Old Possum’s Book of Productivity</title>
+  <meta name="description" content="A calm focus timer where your possum writes at its desk beside you, with a planner, and friends you can study with live." />
+  <meta name="theme-color" content="#f1e1c8" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Texturina:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fondamento&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/scene.css" />
+  <script>
+    // Opened by double-clicking the file? Modules need a web address.
+    if (location.protocol === 'file:') {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.innerHTML =
+          '<div class="file-warning"><h1>This app needs a web address</h1>' +
+          '<p>Browsers block apps like this from running straight off your disk. Open the online version, or run this in the app folder and visit <b>http://localhost:8000</b>:</p>' +
+          '<pre>python3 tools/serve.py</pre></div>';
+      });
+    }
+  </script>
+  <script type="module" src="js/main.js"></script>
 </head>
-<body>
+<body data-state="idle" data-backdrop="parchment">
+  <!-- Pen wobble for drawn frames: applied to separate decorative layers, so text stays crisp. -->
+  <svg class="ink-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <filter id="ink" x="-6%" y="-10%" width="112%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.8" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <filter id="inkbig" x="-1%" y="-1%" width="102%" height="102%"><feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <filter id="hand" x="-2%" y="-12%" width="104%" height="124%"><feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="1" seed="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
+  </svg>
 
-  <div id="mainWrapper" style="display: flex; justify-content: center; align-items: flex-start;">
-    <div id="mainPanel" style="position: relative;">
-      <div id="cycleContainer" style="position: absolute; top: 5px; left: 5px; display: flex; gap: 5px;">
-        <div class="cycleDot"></div>
-        <div class="cycleDot"></div>
-        <div class="cycleDot"></div>
-        <div class="cycleDot"></div>
+  <!-- Vines and little figures in the corners, from the manuscript scene. -->
+  <div class="margins" aria-hidden="true">
+    <img class="vine vine-tl" src="assets/art/margins/top-left.png" alt="" />
+    <img class="vine vine-tr" src="assets/art/margins/top-right.png" alt="" />
+    <img class="vine vine-bl" src="assets/art/margins/bottom-left.png" alt="" />
+    <img class="vine vine-br" src="assets/art/margins/bottom-sprig.png" alt="" />
+  </div>
+
+  <div id="scene" class="scene"></div>
+
+  <header class="topbar">
+    <h1 class="brand"><span class="initial">O</span>ld Possum’s Book of Productivity</h1>
+    <div class="top-right">
+      <span class="tag-pill" id="progressPill">
+        <span id="levelChip">Level 1</span>
+        <svg id="levelBar" class="level-bar" role="img" viewBox="0 0 74 14" width="74" height="14"></svg>
+        <span id="streakChip" class="quiet"></span>
+      </span>
+      <span id="countdown" class="tag-pill" hidden></span>
+      <nav class="top-actions" aria-label="Main">
+        <button id="plannerBtn" class="tab-btn" type="button">Planner</button>
+        <button id="bestiaryBtn" class="tab-btn" type="button">Bestiary<span id="cardBadge" class="badge" hidden></span></button>
+        <button id="roomBtn" class="tab-btn" type="button"><span class="dot" aria-hidden="true"></span><span class="label">Buddy room</span><span id="chatBadge" class="badge" hidden></span></button>
+        <button id="pipBtn" class="tab-btn icon-only" type="button" title="Pop out the scene window: your buddy and the time, floating above your other windows" aria-label="Pop out the scene window" aria-pressed="false" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><rect x="12" y="11" width="7" height="6" rx="1" class="fill"/></svg>
+        </button>
+        <button id="settingsBtn" class="tab-btn" type="button">Settings</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hud" aria-label="Timer and session">
+    <section id="timerCard" class="timer-block" aria-label="Timer">
+      <div id="phaseLabel" class="phase-label">Focus</div>
+      <div id="time" class="time" role="timer" aria-live="off">25:00</div>
+      <div class="controls">
+        <button id="resetBtn" class="ink-btn icon-only" type="button" title="Restart this phase" aria-label="Restart this phase">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/></svg>
+        </button>
+        <button id="startBtn" class="ink-btn main" type="button">Start focus</button>
+        <button id="skipBtn" class="ink-btn" type="button" title="Skip to the next phase" aria-label="Skip to the next phase">Skip</button>
       </div>
-      <div id="timer">25:00</div>
-      <button id="startButton">Start Work</button>
-      <div id="statusWrapper" class="xp-wrapper">
-        <div id="xpLevelDisplay" class="xp-display"> LVL 1 | XP: 0 / 20</div>
-        <div id="dailyStreakDisplay" class="xp-display">🔥 Streak: 0 days</div>
+      <p id="caption" class="caption"></p>
+      <div id="cycle" class="cycle" aria-label="Sessions until a long break"></div>
+      <label class="working-on show-idle show-break"><span>Working on</span><select id="category"></select></label>
+      <div id="syncRow" class="sync-row show-idle show-break" hidden>
+        <label class="switch"><input id="followToggle" type="checkbox" checked /><span class="track" aria-hidden="true"></span><span>Use the room timer</span></label>
+        <span id="syncNote" class="hint"></span>
       </div>
-      <div id="catWrapper" style="position: relative; display: inline-block;">
-        <img id="catImage" src="assets/cat_sleeping.gif" />
-        <div id="catSpeech" class="cat-speech" style="display: none;"></div>
+    </section>
+
+    <aside class="side side-right">
+      <section class="leaf show-idle show-work" aria-labelledby="sessionTitle">
+        <h2 id="sessionTitle" class="rubric"><span class="initial">T</span>his session</h2>
+        <ul class="session-list" data-session></ul>
+        <form class="quick-add" data-quick-add autocomplete="off">
+          <input type="text" maxlength="120" placeholder="Add a task" aria-label="Add a task to this session" />
+          <button class="btn btn-soft" type="submit">Add</button>
+        </form>
+        <button class="link-btn show-idle" type="button" data-open-planner="today">Pick from your planner</button>
+      </section>
+
+      <section class="leaf show-break" aria-labelledby="heldTitle">
+        <h2 id="heldTitle" class="rubric"><span class="initial">W</span>hile you focused</h2>
+        <div id="heldBox" class="held"></div>
+        <p id="levelNote" class="hint"></p>
+        <p id="cardNote" class="hint"></p>
+        <p id="breakIdea" class="break-idea"></p>
+        <h2 class="rubric next"><span class="initial">N</span>ext session</h2>
+        <ul class="session-list" data-session></ul>
+        <form class="quick-add" data-quick-add autocomplete="off">
+          <input type="text" maxlength="120" placeholder="Add a task" aria-label="Add a task to the next session" />
+          <button class="btn btn-soft" type="submit">Add</button>
+        </form>
+      </section>
+      <section id="pigKept" class="leaf show-idle show-break" aria-labelledby="pigKeptTitle" hidden>
+        <h2 id="pigKeptTitle" class="rubric"><span class="initial">T</span>he pig kept these</h2>
+        <ul id="pigList" class="pig-list"></ul>
+      </section>
+    </aside>
+
+    <!-- The hungry pig, at the edge of the desk -->
+    <div id="pigSpot" class="pig-spot">
+      <div id="pigPop" class="pig-pop leaf plain" role="dialog" aria-labelledby="pigPopTitle" hidden>
+        <h2 id="pigPopTitle" class="rubric"><span class="initial">F</span>eed the pig</h2>
+        <p class="aside">A stray thought pulling at you? Give it to the pig. It hands it back on your break.</p>
+        <form id="pigForm" class="quick-add" autocomplete="off">
+          <input id="pigInput" type="text" maxlength="200" placeholder="buy oat milk, email Sam…" aria-label="A stray thought" />
+          <button class="btn btn-soft" type="submit">Feed it</button>
+        </form>
+        <p id="pigSaid" class="aside" aria-live="polite"></p>
+        <button id="pigClose" class="link-btn pig-close" type="button">Close</button>
       </div>
-      <div class="modeGroup">
-        <label for="taskMode">What are you working on?</label>
-        <select id="taskMode">
-          <option value="life_admin">Life Admin</option>
-          <option value="lit_review">Literature Review</option>
-          <option value="cleaning">Data Cleaning</option>
-          <option value="analysis">Analysis</option>
-          <option value="writing">Writing</option>
-          <option value="editing">Editing</option>
-        </select>
-        <p id="modeReminder">Focus on cleaning your data!</p>
-        <div id="sessionChecklist">
-          <h3>Today's Tasks</h3>
-          <form id="newTaskForm">
-            <input type="text" id="newTaskInput" placeholder="Add a new task..." required />
-            <button type="submit">+</button>
-          </form>
-          <ul id="checklist"></ul>
-          <button id="clearCompleted">Clear Completed</button>
+      <button id="pig" class="pig" type="button" aria-expanded="false" aria-controls="pigPop"><span id="pigBadge" class="pig-badge" hidden></span></button>
+    </div>
+
+    <aside id="roomSide" class="side side-left" aria-labelledby="roomSideTitle" hidden>
+      <h2 id="roomSideTitle" class="small-caps">In the room</h2>
+      <div id="roomPeople" class="people"></div>
+      <section id="friendsPanel" class="leaf plain show-break" aria-labelledby="chatTitle">
+        <h2 id="chatTitle" class="rubric"><span class="initial">R</span>oom chat</h2>
+        <div id="chatLog" class="chat-log" aria-live="polite"></div>
+        <form id="chatForm" class="chat-form" autocomplete="off">
+          <input id="chatInput" type="text" maxlength="280" placeholder="Say hi on your break" aria-label="Chat message" />
+          <button class="btn btn-soft" type="submit">Send</button>
+        </form>
+      </section>
+    </aside>
+  </main>
+
+  <!-- Planner: the whole page is the planner, with your buddy peering over the top edge -->
+  <div id="planner" class="planner" hidden>
+    <header class="planner-top">
+      <h2 class="brand"><span class="initial">T</span>he Planner</h2>
+      <nav class="planner-nav" aria-label="Planner">
+        <span id="plannerClock" class="planner-clock"></span>
+        <button id="closePlanner" class="ink-btn main" type="button">Back to the timer</button>
+      </nav>
+    </header>
+    <div class="peek-head" aria-hidden="true"><img id="peekHead" alt="" /></div>
+    <section class="planner-sheet" aria-label="Planner">
+      <div class="sheet-tools">
+        <select id="plannerProject" aria-label="Show project"></select>
+        <button id="newTask" class="btn btn-main" type="button">New task</button>
+      </div>
+      <div class="ribbons" role="tablist" aria-label="Planner pages">
+          <button role="tab" data-ptab="today" type="button" class="ribbon" style="--rib: #a8432e; --rib-dark: #5e1f14"><span>Today</span></button>
+          <button role="tab" data-ptab="week" type="button" class="ribbon" style="--rib: #2f4f8f; --rib-dark: #16264a"><span>Week</span></button>
+          <button role="tab" data-ptab="columns" type="button" class="ribbon" style="--rib: #2f6b6b; --rib-dark: #163636"><span>Columns</span></button>
+          <button role="tab" data-ptab="board" type="button" class="ribbon" style="--rib: #4f7a4a; --rib-dark: #24401f"><span>Board</span></button>
+          <button role="tab" data-ptab="calendar" type="button" class="ribbon" style="--rib: #6e2b3d; --rib-dark: #3a1420"><span>Month</span></button>
+          <button role="tab" data-ptab="projects" type="button" class="ribbon" style="--rib: #5d6b2f; --rib-dark: #2f3814"><span>Projects</span></button>
+          <button role="tab" data-ptab="archive" type="button" class="ribbon" style="--rib: #5a4636; --rib-dark: #2e2219"><span>Archive</span></button>
+          <button role="tab" data-ptab="progress" type="button" class="ribbon" style="--rib: #8a5a14; --rib-dark: #4a2f08"><span>Tally</span></button>
+          <button role="tab" data-ptab="notes" type="button" class="ribbon" style="--rib: #3e5b6e; --rib-dark: #1d2f3b"><span>Notes</span></button>
+      </div>
+      <div id="plannerBody" class="planner-body"></div>
+    </section>
+    <button id="plannerPig" class="pig planner-pig" type="button" aria-label="The hungry pig: drop a finished task here to archive it"></button>
+    <div class="peek-front" aria-hidden="true">
+      <div class="peek-paws"><img class="paw-l" alt="" /><img class="paw-r" alt="" /></div>
+      <div class="peek-snout"><img id="peekSnout" alt="" /></div>
+    </div>
+  </div>
+
+  <!-- The Bestiary: your cards -->
+  <div id="bestiary" class="bestiary" hidden>
+    <header class="planner-top">
+      <h2 class="brand"><span class="initial">T</span>he Bestiary</h2>
+      <nav class="planner-nav" aria-label="Bestiary">
+        <span id="bestiaryCount" class="planner-clock"></span>
+        <button id="closeBestiary" class="ink-btn main" type="button">Back to the timer</button>
+      </nav>
+    </header>
+    <section class="planner-sheet bestiary-sheet" aria-label="Your bestiary">
+      <div id="bestiaryBody" class="bestiary-body"></div>
+    </section>
+  </div>
+
+  <!-- A card for your break: turn it over, or save it -->
+  <dialog id="reveal" class="reveal" aria-labelledby="revealTitle">
+    <div class="reveal-box">
+      <p id="revealKicker" class="reveal-kicker">A CARD FOR YOU</p>
+      <h2 id="revealTitle" class="reveal-title">A card for your break</h2>
+      <p id="revealWhy" class="reveal-why"></p>
+      <div id="revealFlip" class="flip">
+        <div class="flipper">
+          <div id="revealFlipBack" class="flip-side flip-back"></div>
+          <div id="revealFlipFront" class="flip-side flip-front"></div>
         </div>
       </div>
+      <p id="revealNote" class="reveal-note" aria-live="polite"></p>
+      <div id="revealActions" class="reveal-actions"></div>
     </div>
+  </dialog>
 
-    <div id="scratchNotes" class="hidden">
-      <textarea id="notesArea" placeholder="Jot down ideas or reminders..."></textarea>
+  <!-- Task editor -->
+  <dialog id="taskDialog" class="sheet" aria-labelledby="taskTitleLabel">
+    <form method="dialog" class="sheet-head">
+      <h2 id="taskTitleLabel" class="title-rubric"><span class="initial">T</span>ask</h2>
+      <button class="ribbon-close" value="close">Close</button>
+    </form>
+    <div id="taskForm" class="sheet-body task-form"></div>
+  </dialog>
+
+  <!-- Buddy room -->
+  <dialog id="roomDialog" class="sheet" aria-labelledby="roomTitle">
+    <form method="dialog" class="sheet-head">
+      <h2 id="roomTitle" class="title-rubric"><span class="initial">B</span>uddy room</h2>
+      <button class="ribbon-close" value="close">Close</button>
+    </form>
+    <div id="roomOut" class="sheet-body">
+      <p class="lede">Study live with friends. You can see each other while you work, nobody gets pinged until their break, and you can share one timer so you all focus and break together.</p>
+      <div class="room-start">
+        <button id="createRoom" class="btn btn-main" type="button">Start a new room</button>
+        <form id="joinForm" class="join-form" autocomplete="off">
+          <input id="joinInput" type="text" placeholder="Paste an invite link or code" aria-label="Room code or invite link" />
+          <button class="btn btn-soft" type="submit">Join</button>
+        </form>
+      </div>
+      <label class="field">
+        <span>Your name in rooms</span>
+        <input id="roomName" type="text" maxlength="24" placeholder="Alex" />
+      </label>
+      <p class="fine">Rooms are peer-to-peer: there's no server of ours in between and nothing is stored. Anyone with the link can join. Others see your name, your buddy, your timer and, if you allow it, what you're working on. As on any video call, people in the room can see each other's IP address.</p>
     </div>
-
-    <div id="settingsPanel" class="hidden">
-      <h3>Settings</h3>
-      <label>Work Duration (mins.): <input type="number" id="settingWork" min="5" /></label><br>
-      <label>Short Break Duration (mins.): <input type="number" id="settingBreak" min="1" /></label><br>
-      <label>Long Break Duration (mins.): <input type="number" id="settingLongBreak" min="1" /></label><br>
-      <label>Rename Modes:</label>
-      <div id="modeRenameFields"></div>
-      <label>Section Word Targets:</label>
-      <div id="writingGoalFields"></div>
-      <button id="saveSettingsBtn">📀 Save Settings</button>
-      <button id="closeSettingsBtn" style="align-self: flex-end;">❌ Close</button>
+    <div id="roomIn" class="sheet-body" hidden>
+      <p class="status-line"><span id="roomStatusDot" class="dot"></span><span id="roomStatus">Connecting…</span></p>
+      <label class="field">
+        <span>Invite link</span>
+        <div class="copy-row">
+          <input id="inviteLink" type="text" readonly />
+          <button id="copyInvite" class="btn btn-soft" type="button">Copy</button>
+        </div>
+      </label>
+      <p class="hint">Room code: <b id="roomCode"></b></p>
+      <label class="switch">
+        <input id="shareTask" type="checkbox" />
+        <span class="track" aria-hidden="true"></span>
+        <span>Show the room what I'm working on, and tell them when I finish a task</span>
+      </label>
+      <button id="leaveRoom" class="btn btn-quiet" type="button">Leave room</button>
     </div>
-  </div>
+  </dialog>
 
-  <div id="topRightControls">
-    <button id="toggleModeButton">🔁 Toggle Break/Work</button>
-    <button id="toggleTimeStats">📊 View Time Spent</button>
-    <button id="toggleNotesBtn">📝 Notes</button>
-    <button id="toggleSettingsBtn">⚙️ Settings</button>
-  </div>
+  <!-- Settings: written as a page, with blanks to fill in -->
+  <dialog id="settingsDialog" class="sheet sheet-wide" aria-labelledby="settingsTitle">
+    <form method="dialog" class="sheet-head">
+      <h2 id="settingsTitle" class="title-rubric"><span class="initial">S</span>ettings</h2>
+      <button class="ribbon-close" value="close">Close</button>
+    </form>
+    <div class="sheet-body settings">
+      <section>
+        <h3 class="rubric"><span class="initial">Y</span>our buddy</h3>
+        <p class="line"><label for="setName">My name is</label> <input id="setName" class="blank wide" type="text" maxlength="24" placeholder="your name" /> <span class="aside">(your buddies see it)</span></p>
+        <div id="beastPicker" class="portraits" role="radiogroup" aria-label="Choose your buddy"></div>
+        <div id="coatBox" hidden>
+          <p class="aside">Your cat’s coat</p>
+          <div id="coatPicker" class="portraits small" role="radiogroup" aria-label="Choose your cat’s coat"></div>
+        </div>
+      </section>
 
-  <div id="writingGoals" style="display: none;">
-    <h3>Word Count Tracker</h3>
-    <div id="wordCountInputs"></div>
-    <div id="wordChart"></div>
-  </div>
+      <section>
+        <h3 class="rubric"><span class="initial">T</span>he hours</h3>
+        <p class="line">
+          Work for <input id="setFocus" class="blank num" type="number" min="1" max="240" aria-label="Focus minutes" /> minutes,
+          then rest for <input id="setShort" class="blank num" type="number" min="1" max="60" aria-label="Short break minutes" />.
+          After every <input id="setEvery" class="blank num" type="number" min="1" max="12" aria-label="Sessions before a long break" /> sessions,
+          take a long rest of <input id="setLong" class="blank num" type="number" min="1" max="120" aria-label="Long break minutes" /> minutes.
+        </p>
+        <label class="switch"><input id="setAutoBreak" type="checkbox" /><span class="track"></span><span>Start rests by themselves</span></label>
+        <label class="switch"><input id="setAutoFocus" type="checkbox" /><span class="track"></span><span>Start work again by itself after a rest</span></label>
+        <p id="followNote" class="aside" hidden>You’re on a room timer right now. Your own hours come back when you switch to your own timer or leave the room.</p>
+      </section>
 
-  <div id="catGameContainer" style="display: none;">
-    <canvas id="catGameCanvas" width="800" height="200"></canvas>
-    <div id="gameStats"></div>
-  </div>
+      <section>
+        <h3 class="rubric"><span class="initial">P</span>rojects</h3>
+        <p class="aside">The parts of your life you work on. They group your tasks and the tally of your hours.</p>
+        <div id="catEditor" class="cat-editor"></div>
+        <button id="addCategory" class="btn btn-soft" type="button">Add a project</button>
+        <p class="line">Move finished tasks to the archive after <input id="setArchive" class="blank num" type="number" min="1" max="60" aria-label="Days before archiving" /> days.</p>
+      </section>
 
-  <button id="playGameButton" style="position: fixed; bottom: 10px; right: 10px; display: none;">🎮 Play Mini Game</button>
+      <section>
+        <h3 class="rubric"><span class="initial">A</span> day to count toward</h3>
+        <label class="switch"><input id="setCountOn" type="checkbox" /><span class="track"></span><span>Count down the days at the top of the page</span></label>
+        <p class="line"><label for="setCountLabel">To</label> <input id="setCountLabel" class="blank wide" type="text" maxlength="40" placeholder="the thesis, exams, a launch" /> <label for="setCountDate">on</label> <input id="setCountDate" class="blank" type="date" /></p>
+      </section>
 
-  <div id="motivationBar">
-    <p id="motivationMessage">You've got this!</p>
-    <p id="countdown"></p>
-  </div>
+      <section>
+        <h3 class="rubric"><span class="initial">W</span>hat your buddy says</h3>
+        <label class="switch"><input id="setTalks" type="checkbox" /><span class="track"></span><span>Let it say a kind word before you start and on rests</span></label>
+        <label class="field"><span class="aside">Its sayings, one to a line</span><textarea id="setMessages" class="ruled" rows="6"></textarea></label>
+      </section>
 
-  <div id="levelUpOverlay" style="display: none;"></div>
-  <div id="levelUpAnimation" class="level-up hidden">
-    <div>🎉 Level Up! 🎉</div>
-    <div class="level-up-subtext" id="levelUpReward"></div>
-  </div>
+      <section>
+        <h3 class="rubric"><span class="initial">B</span>ells and notices</h3>
+        <label class="switch"><input id="setSound" type="checkbox" /><span class="track"></span><span>Ring a bell when work or a rest ends</span></label>
+        <p class="line"><label for="setVolume">How loud</label> <input id="setVolume" class="quill-range" type="range" min="0" max="1" step="0.05" /> <button id="testSound" class="link-btn" type="button">Ring it</button></p>
+        <label class="switch"><input id="setNotify" type="checkbox" /><span class="track"></span><span>Also send a notice to the desktop (for ends and reminders)</span></label>
+      </section>
 
-  <audio id="levelUpSound" src="assets/level_up.mp3"></audio>
-  <div id="levelDisplay" style="position: absolute; top: 10px; right: 10px; font-weight: bold; font-size: 1.2em;"></div>
-  <div id="bottomLeftPanel" class="hidden">
-    <div id="timeTrackerDisplay"></div>
-  </div>
-  <script src="script.js"></script>
+      <section>
+        <h3 class="rubric"><span class="initial">S</span>orting notes with Claude</h3>
+        <p class="aside">“Pour out your notes” can ask Claude to sort your notes into tasks, with your own Anthropic API key. The key stays in this browser and is never put in a backup copy. When you sort with Claude, your notes, today’s date and your project names are sent to Anthropic, and the use is billed to your Anthropic account.</p>
+        <p class="line"><label for="setClaudeKey">My API key</label> <input id="setClaudeKey" class="blank wide" type="password" autocomplete="off" spellcheck="false" placeholder="paste it here" /> <button id="forgetClaudeKey" class="link-btn" type="button">Forget it</button></p>
+        <p id="claudeKeyNote" class="aside" aria-live="polite"></p>
+        <p class="aside">Make a key in the Anthropic Console (console.anthropic.com), under API keys.</p>
+      </section>
+
+      <section>
+        <h3 class="rubric"><span class="initial">T</span>he page</h3>
+        <div id="backdropPicker" class="portraits wide" role="radiogroup" aria-label="Backdrop"></div>
+        <p class="line">
+          <label for="setTheme">Ink and paper</label>
+          <select id="setTheme" class="blank"><option value="auto">as my computer has it</option><option value="light">daylight (light)</option><option value="dark">candlelight (dark)</option></select>,
+          <label for="setTime">and dim the page</label>
+          <select id="setTime" class="blank"><option value="auto">as evening comes</option><option value="day">never</option><option value="dusk">a little</option><option value="night">more</option></select>.
+        </p>
+      </section>
+
+      <section>
+        <h3 class="rubric"><span class="initial">Y</span>our records</h3>
+        <p class="aside">Everything is kept in this browser. Make a copy to move it to another computer or browser.</p>
+        <div class="row">
+          <button id="exportData" class="btn btn-soft" type="button">Make a copy</button>
+          <label class="btn btn-soft file-btn">Bring in a copy<input id="importData" type="file" accept="application/json,.json" hidden /></label>
+          <button id="resetData" class="btn btn-quiet danger" type="button">Start a fresh book</button>
+        </div>
+      </section>
+    </div>
+  </dialog>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
 </body>
 </html>
