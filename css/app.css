@@ -19,6 +19,7 @@
   --line: rgba(28, 25, 19, 0.3);
   --red: #a8432e;
   --red-2: #7d2f1f;
+  --blue: #2d4c8a;          /* azurite: initials and ¶ marks take turns with the red */
   --ochre: #e0b040;
   --gold: #d6b05c;
   --moss: #4f7a4a;
@@ -37,13 +38,13 @@
   :root:not([data-theme='light']) {
     --page: #221d18; --on-page: #f1e6d6; --on-page-2: #c9b9a3;
     --ink: #f1e6d6; --ink-2: #c9b9a3; --paper: #2f2924; --paper-2: #3a322b; --line: rgba(241, 230, 214, 0.22);
-    --sand: #4a4036; --ochre: #9c7a2c; color-scheme: dark;
+    --sand: #4a4036; --ochre: #9c7a2c; --blue: #8fa8dc; color-scheme: dark;
   }
 }
 :root[data-theme='dark'] {
   --page: #221d18; --on-page: #f1e6d6; --on-page-2: #c9b9a3;
   --ink: #f1e6d6; --ink-2: #c9b9a3; --paper: #2f2924; --paper-2: #3a322b; --line: rgba(241, 230, 214, 0.22);
-  --sand: #4a4036; --ochre: #9c7a2c; color-scheme: dark;
+  --sand: #4a4036; --ochre: #9c7a2c; --blue: #8fa8dc; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -55,6 +56,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 h1, h2, h3 { font-weight: 700; margin: 0; line-height: 1.2; }
 :focus-visible { outline: 2.5px solid var(--red); outline-offset: 2px; }
 .ink-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Lines written out letter by letter, as if by a scribe (inscribe() in util.js). */
+.inscribe .word { white-space: nowrap; }
+.inscribe .ch { opacity: 0; animation: ink-in 0.42s ease-out forwards; }
+@keyframes ink-in { 0% { opacity: 0; filter: blur(1.2px); } 45% { opacity: 1; } 100% { opacity: 1; filter: none; } }
 .quiet { font-weight: 400; }
 
 /* state switching */
@@ -101,7 +108,7 @@ body[data-state='break'] .show-idle:not(.show-break), body[data-state='break'] .
   display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap;
 }
 .brand { font-size: 26px; font-weight: 700; color: var(--on-page); filter: url(#hand); }
-.brand .initial { color: var(--red); }
+.brand .initial { color: var(--blue); font-size: 1.3em; line-height: 0.8; }
 body[data-backdrop='vault'] .brand .initial { color: #f2a48c; }
 .top-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
@@ -115,6 +122,15 @@ body[data-backdrop='vault'] .tab-btn:hover { --frame-bg: rgba(255, 255, 255, 0.1
 .tab-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--on-page-2); opacity: 0.55; }
 .tab-btn.live .dot { background: var(--moss); opacity: 1; box-shadow: 0 0 0 3px rgba(79, 122, 74, 0.3); }
 .tab-btn.icon-only { width: 44px; padding: 0; justify-content: center; }
+/* The menu is written in the top margin, each entry after a paragraph mark,
+   red and blue by turns, as in a manuscript's running text. */
+.topbar .tab-btn { min-height: 38px; padding: 0 8px; font-size: 17px; }
+.topbar .tab-btn::before { content: '¶'; position: static; inset: auto; z-index: auto; border: 0; background: none; filter: none; color: var(--red); font-weight: 700; margin-right: 2px; }
+.topbar .tab-btn:nth-child(even)::before { color: var(--blue); }
+.topbar .tab-btn:hover { --frame-bg: none; text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+body[data-backdrop='vault'] .topbar .tab-btn::before { color: #f2a48c; }
+.topbar .tag-pill::before { border: 0; background: none; }
+.topbar .tag-pill { min-height: 38px; font-weight: 500; font-style: italic; color: var(--on-page); }
 .tab-btn svg, .ink-btn svg, .round svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .tab-btn svg .fill, .round svg .fill { fill: currentColor; stroke: none; }
 .badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--red); color: #fbf1d8; font-size: 11px; display: inline-grid; place-items: center; }
@@ -143,6 +159,10 @@ body[data-backdrop='vault'] .phase-label { color: #f2a48c; }
 .ink-btn { --frame-ink: var(--on-page); border: 0; background: transparent; min-height: 46px; padding: 0 24px; color: var(--on-page); font-size: 16px; font-weight: 600; cursor: pointer; }
 .ink-btn.main { --frame-bg: var(--red); --frame-ink: #1c1913; color: #fbf1d8; min-width: 150px; }
 .ink-btn.icon-only { width: 46px; padding: 0; display: inline-grid; place-items: center; }
+/* Only the main action is a painted block; the others are words in the text. */
+.controls .ink-btn:not(.main)::before { border: 0; background: none; }
+.controls .ink-btn:not(.main) { min-height: 40px; padding: 0 10px; text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+.ink-btn.main { font-variant: small-caps; letter-spacing: 0.08em; font-size: 18px; }
 .caption { margin: 8px 0 0; font-size: 15px; font-style: italic; color: var(--on-page-2); min-height: 1.4em; }
 .cycle { display: flex; justify-content: center; gap: 8px; margin-top: 6px; }
 .cycle span { width: 18px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 0.8 L9.3 6.6 L15.2 8 L9.3 9.4 L8 15.2 L6.7 9.4 L0.8 8 L6.7 6.6 Z' fill='none' stroke='%23857563' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E") center / 18px no-repeat; }
@@ -155,14 +175,18 @@ body[data-backdrop='vault'] .phase-label { color: #f2a48c; }
 .side { position: absolute; top: max(300px, calc(var(--top-h, 48px) + 90px)); width: var(--side-w); max-height: calc(100vh - 330px); overflow: auto; padding: 4px; scrollbar-width: thin; display: grid; gap: 16px; align-content: start; }
 .side-right { right: 36px; }
 .side-left { left: 36px; color: var(--on-page); }
-/* The card: an ochre band inside a thick ink frame, with the page on top. */
-.leaf { --frame-bg: var(--ochre); padding: 20px 22px; color: var(--ink); }
-.leaf::before { border-width: 3px; border-radius: 6px; }
-.leaf::after { content: ''; position: absolute; inset: 7px; z-index: -1; pointer-events: none; background: var(--paper); border: 2px solid var(--ink); border-radius: 3px; filter: url(#ink); }
+/* The card: a text block ruled round in red, two lines like a scribe's
+   frame ruling, on a lighter patch of the page. */
+.leaf { --frame-bg: transparent; padding: 20px 22px; color: var(--ink); }
+.leaf::before { border: 1.5px solid var(--red); border-radius: 2px; }
+.leaf::after { content: ''; position: absolute; inset: 5px; z-index: -1; pointer-events: none; background: color-mix(in srgb, var(--paper) 70%, transparent); border: 1px solid var(--red); border-radius: 1px; filter: url(#ink); }
 .leaf.plain { --frame-bg: var(--paper); }
 .leaf.plain::after { display: none; }
 .rubric { margin: 0 0 6px; font-size: 20px; font-weight: 700; color: var(--red); filter: url(#hand); }
-.rubric .initial { font-size: 30px; line-height: 1; }
+/* A drop initial, blue and red by turns down the side. */
+.rubric .initial { float: left; font-size: 40px; line-height: 0.8; margin: 4px 6px 0 0; color: var(--blue); }
+.side .leaf:nth-child(even) .rubric .initial, .side .leaf:nth-child(odd) .rubric.next .initial { color: var(--red); }
+.side .leaf:nth-child(even) .rubric.next .initial { color: var(--blue); }
 .rubric.next { margin-top: 16px; }
 .small-caps { margin: 0 0 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); }
 body[data-backdrop='vault'] .small-caps { color: #f2a48c; }
@@ -734,4 +758,5 @@ body.widget[data-backdrop='vault'] .w-phase { color: #f2a48c; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  .inscribe .ch { animation: none !important; opacity: 1; }
 }

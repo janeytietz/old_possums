@@ -1,10 +1,12 @@
-import { el } from '../util.js';
+import { el, inscribe } from '../util.js';
 
 /** Small, self-dismissing message at the bottom of the screen. */
 export function toast(text, { action, onAction, timeout = 4500 } = {}) {
   const box = document.getElementById('toasts');
   if (!box) return () => {};
-  const t = el('div', { class: 'toast', role: 'status' }, el('span', {}, text));
+  const line = el('span');
+  inscribe(line, text);
+  const t = el('div', { class: 'toast', role: 'status' }, line);
   let closed = false;
   const close = () => {
     if (closed) return;

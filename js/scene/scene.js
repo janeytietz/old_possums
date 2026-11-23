@@ -6,7 +6,7 @@
 //   scene.heart()                            little hearts (a paw from a friend, a pet)
 //   scene.ambience({ time, weather })
 
-import { el, icon } from '../util.js';
+import { el, icon, inscribe } from '../util.js';
 import { beastShort } from '../coats.js';
 import * as art from './art.js';
 
@@ -49,7 +49,8 @@ export function createScene(root, { onBuddyClick } = {}) {
   }
 
   function say(text, ms = 8000) {
-    bubble.textContent = text;
+    delete bubble.dataset.inscribed; // write it out afresh each time it speaks
+    inscribe(bubble, text);
     bubble.hidden = false;
     bubble.classList.remove('show');
     void bubble.offsetWidth;

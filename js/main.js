@@ -11,7 +11,7 @@
 import { state, update, on, currentCategory, todayStats, liveStreak, xpForNext, BREAK_IDEAS, setReadOnly } from './store.js';
 import { Timer, PHASES } from './timer.js';
 import { play } from './sound.js';
-import { $, $$, el, fmtClock, daysBetween, dayKey, pick, icon } from './util.js';
+import { $, $$, el, fmtClock, daysBetween, dayKey, pick, icon, inscribe } from './util.js';
 import { initSettings } from './ui/settings.js';
 import { initPlanner } from './ui/planner-view.js';
 import { initSession } from './ui/session.js';
@@ -177,7 +177,7 @@ function renderScreen() {
     break: timer.running ? `Break. Your ${buddy()} has put its quill down.` : 'Break time. Start it when you’re ready.',
     idle: timer.remaining < timer.total - 1000 ? `Paused. Your ${buddy()} is waiting for you.` : 'Ready when you are.',
   }[s];
-  $('#caption').textContent = caption;
+  inscribe($('#caption'), caption);
 
   if (s !== lastScreen) {
     const prev = lastScreen;

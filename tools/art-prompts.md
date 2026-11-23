@@ -12,7 +12,7 @@ image, plain paper). Then each new beast can go through the same tracing steps a
 ## Style block (always include)
 
 ```
-Hand-coloured woodcut illustration in the manner of a 15th-century printed bestiary. Confident black ink outlines that vary in thickness, with only a little hatching where a shape needs it: leave large areas plain. Colour is a few flat watercolour washes from a small palette (ochre, vermilion, verdigris green, lapis blue, warm brown, cream), laid on slightly loosely. Plain warm off-white paper background with no texture and no ground shadow. The animal has slightly odd, gangly medieval proportions and a calm, friendly expression; it is not cute and not chibi. One subject, full figure, centred in a square 1:1 image with a generous margin.
+Hand-coloured woodcut illustration in the manner of a 15th-century printed bestiary, like a page from a hand-coloured German incunable of around 1490. Confident black ink outlines that vary in thickness, with only a little hatching where a shape needs it: leave large areas plain. Colour is a few flat, unshaded watercolour washes from a small palette (ochre, vermilion, verdigris green, lapis blue, warm brown, cream), laid on slightly loosely, sometimes a little outside the lines. Faces are drawn simply but expressively, with a slightly comic, storytelling quality. Plain warm off-white paper background with no texture and no ground shadow. The animal has slightly odd, gangly medieval proportions and a calm, friendly expression; it is not cute and not chibi. One subject, full figure, centred in a square 1:1 image with a generous margin.
 Avoid: dense, even hatching everywhere, smooth gradients or airbrushed shading, glossy highlights, perfect perspective, 3D, photographic detail, extra props, and any text or lettering.
 ```
 
@@ -38,10 +38,13 @@ The same [BEAST] at the same desk and stool, fast asleep with its head resting o
 
 Attach `tools/art-src/possum-writing-source.jpg` as the reference so it stays the same possum.
 
+Keep the desk, stool and possum the same size and in the same place as the reference, so the
+poses swap without jumping.
+
 On a break:
 
 ```
-The same possum at the same green desk and wooden stool, holding a small cup of tea in both pink front paws, eyes contentedly closed, still grinning. The quill rests on the open book. Same framing and size as the reference.
+The same possum at the same green desk and wooden stool, sitting back and holding a small earthenware cup of tea in both pink front paws, eyes contentedly closed, still grinning. Three little curling ink lines of steam rise from the cup. The quill lies on the open book. Same framing and size as the reference.
 ```
 
 When you're away (playing dead):
