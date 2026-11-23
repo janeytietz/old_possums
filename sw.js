@@ -1,6 +1,6 @@
 // Offline support + installability. Same-origin files are fetched fresh when
 // online (so updates appear right away) and served from cache when offline.
-const CACHE = 'old-possum-v10';
+const CACHE = 'old-possum-v11';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css', 'css/scene.css',
   'js/main.js', 'js/store.js', 'js/timer.js', 'js/util.js', 'js/sound.js', 'js/coats.js', 'js/room.js', 'js/pip.js',

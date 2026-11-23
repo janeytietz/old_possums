@@ -29,16 +29,28 @@ export function el(tag, attrs = {}, ...children) {
  * Write a line into node letter by letter, as if a scribe were inking it
  * (css .inscribe). Words never break across lines; screen readers get the
  * whole line at once. Writing the same line again does nothing.
+ *
+ * When the line is written it settles into plain text, so it is always sharp
+ * and fully there, even if the browser paused the animation (WebKit does,
+ * for a window in the background or covered by another).
  */
+const STEP = 38;      // ms between letters
+const LETTER = 420;   // ms for one letter to ink in
+const settling = new WeakMap(); // node -> timer that turns it into plain text
 export function inscribe(node, text) {
   if (!node || node.dataset.inscribed === text) return;
   node.dataset.inscribed = text;
   let i = 0;
   const letters = text.split(/(\s+)/).map((part) => (/^\s*$/.test(part)
     ? part
-    : el('span', { class: 'word' }, ...[...part].map((c) => el('span', { class: 'ch', style: { animationDelay: `${Math.min(i++ * 38, 2400)}ms` } }, c)))));
+    : el('span', { class: 'word' }, ...[...part].map((c) => el('span', { class: 'ch', style: { animationDelay: `${Math.min(i++ * STEP, 2400)}ms` } }, c)))));
+  const shown = el('span', { 'aria-hidden': 'true' }, ...letters);
   node.classList.add('inscribe');
-  node.replaceChildren(el('span', { class: 'sr-only' }, text), el('span', { 'aria-hidden': 'true' }, ...letters));
+  node.replaceChildren(el('span', { class: 'sr-only' }, text), shown);
+  clearTimeout(settling.get(node));
+  settling.set(node, setTimeout(() => {
+    if (node.dataset.inscribed === text) shown.textContent = text;
+  }, Math.min(Math.max(i - 1, 0) * STEP, 2400) + LETTER + 80));
 }
 
 export const pad = (n) => String(n).padStart(2, '0');

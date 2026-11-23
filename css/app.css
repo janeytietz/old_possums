@@ -60,8 +60,9 @@ h1, h2, h3 { font-weight: 700; margin: 0; line-height: 1.2; }
 
 /* Lines written out letter by letter, as if by a scribe (inscribe() in util.js). */
 .inscribe .word { white-space: nowrap; }
-.inscribe .ch { opacity: 0; animation: ink-in 0.42s ease-out forwards; }
-@keyframes ink-in { 0% { opacity: 0; filter: blur(1.2px); } 45% { opacity: 1; } 100% { opacity: 1; filter: none; } }
+/* Opacity only (no blur): a paused animation must never leave text smudged. */
+.inscribe .ch { animation: ink-in 0.42s ease-out backwards; }
+@keyframes ink-in { from { opacity: 0; } 45% { opacity: 1; } }
 .quiet { font-weight: 400; }
 
 /* state switching */
