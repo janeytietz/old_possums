@@ -204,6 +204,27 @@ export function markReminded(ids) {
 
 // ── The session checklist ───────────────────────────────────────────────────
 export const sessionTasks = () => state.session.taskIds.map(taskById).filter(Boolean);
+/** What you're on: the first unfinished task in this session's order; then the one after it. */
+export const currentSessionTask = () => sessionTasks().find((t) => t.status !== 'done') || null;
+export const nextSessionTask = () => sessionTasks().filter((t) => t.status !== 'done')[1] || null;
+
+/** Put this session's tasks in a new order (ids you leave out keep their place at the end). */
+export function reorderSession(ids) {
+  update('tasks', (s) => {
+    const have = new Set(s.session.taskIds);
+    const first = ids.filter((id) => have.has(id));
+    s.session.taskIds = [...first, ...s.session.taskIds.filter((id) => !first.includes(id))];
+  });
+}
+/** Move one task up (-1) or down (+1) in this session. */
+export function moveInSession(id, by) {
+  const ids = [...state.session.taskIds];
+  const from = ids.indexOf(id);
+  const to = from + by;
+  if (from < 0 || to < 0 || to >= ids.length) return;
+  ids.splice(to, 0, ids.splice(from, 1)[0]);
+  reorderSession(ids);
+}
 
 export function addToSession(id) {
   update('tasks', (s) => { if (!s.session.taskIds.includes(id)) s.session.taskIds.push(id); });

@@ -3,7 +3,8 @@
 //
 //   isMac               true inside the Mac app
 //   send(msg)           message the Mac app (see mac/Sources/OldPossum/AppDelegate.swift)
-//   onCommand(name, fn) the menu bar or scene window asks for 'toggle' / 'skip'
+//   onCommand(name, fn) the menu bar or scene window asks for 'toggle' / 'skip' /
+//                       'completeTask' (with the task's id)
 
 const handler = window.webkit?.messageHandlers?.possum;
 export const isMac = !!(handler && window.possumMac);
@@ -42,7 +43,7 @@ export function sortOnMac(notes, projects, today) {
 }
 
 window.possumNative = {
-  command: (name) => commands[name]?.(),
+  command: (name, arg) => commands[name]?.(arg),
   sorted(id, ok, payload) {
     const job = waiting.get(id);
     if (!job) return;

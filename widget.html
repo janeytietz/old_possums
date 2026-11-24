@@ -27,7 +27,8 @@
   <section class="w-clock" aria-label="Timer">
     <p id="wPhase" class="w-phase">Focus</p>
     <p id="wTime" class="w-time" role="timer">25:00</p>
-    <p id="wTask" class="w-task">Ready when you are</p>
+    <p class="w-task"><input id="wDone" class="check" type="checkbox" aria-label="Done" hidden /><span id="wTask">Ready when you are</span></p>
+    <p id="wNext" class="w-next"></p>
     <div class="w-buttons">
       <button id="wToggle" class="ink-btn main" type="button">Start focus</button>
       <button id="wSkip" class="ink-btn" type="button" aria-label="Skip to the next phase">Skip</button>

@@ -3,10 +3,11 @@
 // hidden elsewhere). Your buddy at its desk on the left, the time on the right,
 // this session's task and the buttons under it, a vine in the corner.
 //
-//   const pip = initPip({ timer, buddies, task, look })
-//     buddies(): how many friends are in the room
-//     task():    the task you're on ('' if none)
-//     look():    { beast, coat, status, backdrop }
+//   const pip = initPip({ timer, buddies, task, next, complete, look })
+//     buddies():    how many friends are in the room
+//     task():       the task you're on (null if none); next(): the one after it
+//     complete(id): tick it off, so the next one takes its place
+//     look():       { beast, coat, status, backdrop }
 //   pip.update()   call whenever the timer or your buddy changes
 
 import { $, el, fmtClock } from './util.js';
@@ -18,7 +19,7 @@ import { isMac, send } from './native.js';
 
 const POSE = { focus: 'focus', break: 'brk', paused: 'idle', idle: 'idle', away: 'away' };
 
-export function initPip({ timer, buddies, task, look }) {
+export function initPip({ timer, buddies, task, next = () => null, complete = () => {}, look }) {
   const btn = $('#pipBtn');
   // In the Mac app the scene window is a native floating panel (widget.html).
   if (isMac) {
@@ -31,6 +32,7 @@ export function initPip({ timer, buddies, task, look }) {
 
   let win = null;
   let ui = null;
+  let shownId = ''; // the task the tick box is for
 
   btn.addEventListener('click', async () => {
     if (win) return win.close();
@@ -65,7 +67,9 @@ export function initPip({ timer, buddies, task, look }) {
       scene,
       phase: el('p', { class: 'w-phase' }),
       time: el('p', { class: 'w-time', role: 'timer' }),
-      task: el('p', { class: 'w-task' }),
+      taskText: el('span'),
+      done: el('input', { class: 'check', type: 'checkbox', hidden: true, onchange: () => { if (shownId) complete(shownId); } }),
+      next: el('p', { class: 'w-next' }),
       buddies: el('p', { class: 'w-buddies' }),
       toggle: el('button', { class: 'ink-btn main', type: 'button', onclick: () => timer.toggle() }),
       skip: el('button', { class: 'ink-btn', type: 'button', onclick: () => timer.skip(), 'aria-label': 'Skip to the next phase' }, 'Skip'),
@@ -77,7 +81,7 @@ export function initPip({ timer, buddies, task, look }) {
       el('img', { class: 'w-vine', src: new URL('assets/art/margins/bottom-sprig.png', location.href).href, alt: '' }),
       scene,
       el('section', { class: 'w-clock', 'aria-label': 'Timer' },
-        ui.phase, ui.time, ui.task,
+        ui.phase, ui.time, el('p', { class: 'w-task' }, ui.done, ui.taskText), ui.next,
         el('div', { class: 'w-buttons' }, ui.toggle, ui.skip),
         ui.buddies),
       el('span', { class: 'w-frame', 'aria-hidden': 'true' }),
@@ -103,7 +107,15 @@ export function initPip({ timer, buddies, task, look }) {
     ui.time.textContent = clock;
     ui.toggle.textContent = timer.running ? 'Pause' : fresh ? (timer.phase === 'focus' ? 'Start focus' : 'Start break') : 'Resume';
     const t = task();
-    ui.task.textContent = timer.phase === 'focus' ? t || (timer.running ? 'Focus time' : 'Ready when you are') : 'Quill down. A break.';
+    const onTask = timer.phase === 'focus' && !!t;
+    shownId = onTask ? t.id : '';
+    ui.taskText.textContent = timer.phase === 'focus' ? t?.title || (timer.running ? 'Focus time' : 'Ready when you are') : 'Quill down. A break.';
+    ui.taskText.title = onTask ? t.title : ''; // the whole name on hover when it's cut short
+    ui.done.hidden = !onTask;
+    ui.done.checked = false;
+    ui.done.setAttribute('aria-label', onTask ? `Done: ${t.title}` : 'Done');
+    const then = onTask ? next() : null;
+    ui.next.textContent = then ? `Then: ${then.title}` : '';
     const n = buddies();
     ui.buddies.textContent = n ? `${n} ${n === 1 ? 'buddy' : 'buddies'} working with you` : '';
     ui.scene.setAttribute('aria-label', `Your ${beastShort(beast)} at its desk`);

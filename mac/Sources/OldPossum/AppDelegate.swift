@@ -13,7 +13,7 @@ import WebKit
 ///   { type: "widgetReady" }           the scene window's page is ready for the state
 ///   { type: "sortNotes", id, notes, projects, today }   sort notes on this Mac (Apple Intelligence);
 ///                                     answered with window.possumNative.sorted(id, ok, jsonOrMessage)
-/// Mac -> web app: window.possumNative.command("toggle" | "skip")
+/// Mac -> web app: window.possumNative.command("toggle" | "skip" | "completeTask", id)
 final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate, NSWindowDelegate {
     private var window: NSWindow!
     private var webView: WKWebView!
@@ -53,13 +53,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             onSkip: { [weak self] in self?.command("skip") },
             isWidgetOpen: { [weak self] in self?.widget.isOpen ?? false }
         )
-        widget = WidgetPanel(makeWebView: { [weak self] frame in self!.makeWebView(frame: frame) })
+        widget = WidgetPanel(makeWebView: { [weak self] frame in self!.makeWebView(frame: frame, draggable: true) })
         NSApp.activate(ignoringOtherApps: true)
     }
 
     /// One web view setup for both windows: our files, the bridge, and a flag
     /// (window.possumMac) so the web app knows it's inside the Mac app.
-    private func makeWebView(frame: NSRect) -> WKWebView {
+    /// The scene window's is `draggable`: press anywhere but a button to move it.
+    private func makeWebView(frame: NSRect, draggable: Bool = false) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.setURLSchemeHandler(files, forURLScheme: AppFiles.scheme)
         config.websiteDataStore = .default()
@@ -69,7 +70,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         let aiJSON = (try? JSONSerialization.data(withJSONObject: ["available": ai.available, "reason": ai.reason])).flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
         content.addUserScript(WKUserScript(source: "window.possumMac = { version: 1, onDeviceAI: \(aiJSON) };", injectionTime: .atDocumentStart, forMainFrameOnly: true))
         config.userContentController = content
-        let view = WKWebView(frame: frame, configuration: config)
+        let view = draggable ? DraggableWebView(frame: frame, configuration: config) : WKWebView(frame: frame, configuration: config)
         view.navigationDelegate = self
         view.uiDelegate = self
         view.isInspectable = true
@@ -93,6 +94,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             notifier.ask()
         case "widgetReady":
             widget.push(state)
+        case "widgetHotspots":
+            widget.setHotspots(body["rects"] as? [[String: Any]] ?? [])
+            if selfTest { print("scene window buttons (the rest drags): \(body["rects"] ?? [])") }
         case "sortNotes":
             sortNotes(body)
         case "widget":
@@ -100,7 +104,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             if widget.isOpen { widget.push(state) }
         case "command":
             let name = body["name"] as? String ?? ""
-            if name == "showMain" { showMain() } else { command(name) }
+            if name == "showMain" { showMain() } else { command(name, id: body["id"] as? String) }
         default:
             break
         }
@@ -134,9 +138,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     }
 
     /// Ask the web app to toggle or skip (it owns the timer).
-    private func command(_ name: String) {
-        guard ["toggle", "skip"].contains(name) else { return }
-        webView.evaluateJavaScript("window.possumNative && window.possumNative.command('\(name)')")
+    /// Ask the main window to do something. `completeTask` ticks off the task the
+    /// scene window shows; its id must look like one of ours (letters and digits).
+    private func command(_ name: String, id: String? = nil) {
+        guard ["toggle", "skip", "completeTask"].contains(name) else { return }
+        var arg = ""
+        if name == "completeTask" {
+            guard let id, (1...24).contains(id.count), id.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber) }) else { return }
+            arg = ", '\(id)'"
+        }
+        webView.evaluateJavaScript("window.possumNative && window.possumNative.command('\(name)'\(arg))")
     }
 
     private func showMain() {

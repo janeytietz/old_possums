@@ -24,7 +24,7 @@ import { beastShort } from './coats.js';
 import { BuddyRoom, newRoomCode, parseRoomCode, inviteLink } from './room.js';
 import { initPip } from './pip.js';
 import { isMac, send as sendMac, onCommand, shareState } from './native.js';
-import { sessionTasks, startSession, dueReminders, markReminded, archiveOld } from './planner.js';
+import { sessionTasks, currentSessionTask, nextSessionTask, setStatus, startSession, dueReminders, markReminded, archiveOld } from './planner.js';
 
 const USER_REASONS = new Set(['start', 'pause', 'reset', 'skip', 'phase']);
 
@@ -78,7 +78,9 @@ const buddy = () => beastShort(state.profile.beast);
 const pip = initPip({
   timer,
   buddies: () => room?.peers.size || 0,
-  task: () => currentTaskText(),
+  task: () => currentSessionTask(),
+  next: () => nextSessionTask(),
+  complete: (id) => completeFromMini(id),
   look: () => ({ beast: state.profile.beast, coat: state.profile.coat, status: myStatus(), backdrop: state.scene.backdrop }),
 });
 // Finishing tasks tells the room (on their break).
@@ -103,7 +105,15 @@ function myStatus() {
   return 'idle';
 }
 
-const currentTaskText = () => sessionTasks().find((t) => t.status !== 'done')?.title || '';
+const currentTaskText = () => currentSessionTask()?.title || '';
+
+/** Ticked off in the mini player: done, and it moves on to the next in this session. */
+function completeFromMini(id) {
+  const t = currentSessionTask();
+  if (!t || (id && t.id !== id)) return; // it changed in the meantime: don't tick the wrong one
+  const titles = setStatus(t.id, 'done');
+  if (titles.length) finishedTasks(titles);
+}
 
 function myPresence() {
   const cat = currentCategory();
@@ -237,6 +247,8 @@ function tellMac() {
     endsAt: timer.running ? Date.now() + timer.remaining : 0,
     toggleLabel: timer.running ? 'Pause' : fresh ? (timer.phase === 'focus' ? 'Start focus' : 'Start break') : 'Resume',
     task: currentTaskText(),
+    taskId: currentSessionTask()?.id || '',
+    next: nextSessionTask()?.title || '',
     beast: state.profile.beast,
     coat: state.profile.coat,
     status: myStatus(),
@@ -246,6 +258,7 @@ function tellMac() {
 }
 onCommand('toggle', () => timer.toggle());
 onCommand('skip', () => timer.skip());
+onCommand('completeTask', (id) => completeFromMini(id));
 
 // Level, streak, and how far to the next level.
 function roman(n) {

@@ -198,6 +198,14 @@ body[data-backdrop='vault'] .small-caps { color: #f2a48c; }
   display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 10px; min-height: 48px; font-size: 17px;
 }
 .s-item.done span { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; color: var(--ink-2); }
+.s-title { cursor: pointer; }
+/* The one you're on (and the mini player shows): a pointing hand in the margin. */
+.s-item.now .s-title::before { content: '☞ '; color: var(--red); }
+/* Reordering by drag: the task lifts, a red rule shows where it will land. */
+.s-item[draggable='true'] { cursor: grab; }
+.s-item.dragging { opacity: 0.45; }
+.s-item.drop-before { box-shadow: inset 0 2px 0 var(--red); }
+.s-item.drop-after { box-shadow: inset 0 -2px 0 var(--red); }
 .s-item .x { opacity: 0; border: 0; background: none; color: var(--ink-2); cursor: pointer; padding: 6px; }
 .s-item:hover .x, .s-item:focus-within .x { opacity: 1; }
 .s-empty { color: var(--ink-2); font-size: 15px; font-style: italic; padding: 4px 0 8px; }
@@ -692,7 +700,8 @@ dialog.reveal::backdrop { background: rgba(28, 25, 19, 0.76); }
 /* ── The scene window (pop-out widget, js/pip.js) ─────────────────────────
    Your buddy at its desk on the left, the time on the right, a vine in the
    corner, a red frame round it all. Sized in vw/vh so it scales with the window. */
-body.widget { position: relative; height: 100vh; margin: 0; overflow: hidden; background: var(--page); color: var(--on-page); }
+body.widget { position: relative; height: 100vh; margin: 0; overflow: hidden; background: var(--page); color: var(--on-page); cursor: grab; user-select: none; -webkit-user-select: none; }
+body.widget button { cursor: pointer; }   /* everything else drags the window (Mac app) */
 body.widget[data-backdrop='vault'] { --page: #24407a; --on-page: #fbf1d8; --on-page-2: rgba(251, 241, 216, 0.82); background: #24407a url(../assets/art/vault.svg) center / cover; }
 .w-band { position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: 34px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #e8d3b0; color: #1c1913; font-size: 13px; font-weight: 600; }
 .w-band::after { content: ''; position: absolute; left: 0; right: 0; bottom: -3px; height: 8px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4 C 80 2.6 150 5.2 240 3.8 C 330 2.4 420 5 510 3.6 C 550 3 580 4.4 600 3.8' fill='none' stroke='%231c1913' stroke-width='1.6' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left center / 100% 8px no-repeat; }
@@ -706,7 +715,12 @@ body.widget[data-backdrop='vault'] .w-band { background: rgba(20, 28, 56, 0.6); 
 .w-phase { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); }
 body.widget[data-backdrop='vault'] .w-phase { color: #f2a48c; }
 .w-time { margin: 0; font-family: var(--num); font-size: clamp(40px, 15vw, 96px); line-height: 1; font-variant-numeric: tabular-nums; filter: url(#hand); }
-.w-task { max-width: 100%; margin: 2px 0 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 15px; font-style: italic; }
+.w-task { max-width: 100%; min-width: 0; margin: 2px 0 8px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-style: italic; }
+.w-task > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.w-task .check { width: 20px; height: 20px; background-size: 20px; }
+/* The next task in this session, quietly underneath. */
+.w-next { max-width: 100%; margin: -6px 0 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; font-style: italic; color: var(--on-page-2); }
+.w-next:empty { display: none; }
 .w-buttons { display: flex; gap: 8px; }
 .w-buttons .ink-btn { min-height: 40px; padding: 0 16px; font-size: 15px; }
 .w-buttons .ink-btn.main { min-width: 0; }

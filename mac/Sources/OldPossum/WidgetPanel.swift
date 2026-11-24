@@ -50,6 +50,15 @@ final class WidgetPanel: NSObject, NSWindowDelegate {
         panel?.orderFrontRegardless()
     }
 
+    /// Where the page's buttons are, so a press anywhere else moves the window.
+    func setHotspots(_ list: [[String: Any]]) {
+        (webView as? DraggableWebView)?.hotspots = list.compactMap { r in
+            guard let x = (r["x"] as? NSNumber)?.doubleValue, let y = (r["y"] as? NSNumber)?.doubleValue,
+                  let w = (r["w"] as? NSNumber)?.doubleValue, let h = (r["h"] as? NSNumber)?.doubleValue else { return nil }
+            return CGRect(x: x, y: y, width: w, height: h)
+        }
+    }
+
     /// Hand the latest timer state to the page (it counts down by itself).
     func push(_ state: TimerState) {
         guard let webView, !state.raw.isEmpty,
@@ -67,4 +76,26 @@ final class WidgetPanel: NSObject, NSWindowDelegate {
         sender.orderOut(nil)
         return false
     }
+}
+
+/// The scene window's web view. A web view takes every click for the page,
+/// so the window could only be moved by its thin title strip; here a press
+/// anywhere that isn't one of the page's buttons (reported by js/widget.js)
+/// drags the whole window instead.
+final class DraggableWebView: WKWebView {
+    /// The page's buttons, in its own coordinates (CSS pixels from the top left).
+    var hotspots: [CGRect] = []
+
+    override func mouseDown(with event: NSEvent) {
+        var p = convert(event.locationInWindow, from: nil)
+        if !isFlipped { p.y = bounds.height - p.y }
+        if hotspots.contains(where: { $0.insetBy(dx: -3, dy: -3).contains(p) }) {
+            super.mouseDown(with: event)
+        } else {
+            window?.performDrag(with: event)
+        }
+    }
+
+    /// The panel never becomes the active window, so the first press must count.
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 }

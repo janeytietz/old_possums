@@ -35,17 +35,43 @@ window.possumWidget = {
     document.body.dataset.backdrop = s.backdrop || 'parchment';
     $('wPhase').textContent = s.phaseLabel;
     $('wToggle').textContent = s.toggleLabel;
+    // The task you're on, with a tick box: tick it and the next in this session takes its place.
+    const onTask = s.phase === 'focus' && !!s.taskId;
     $('wTask').textContent = s.phase === 'focus' ? s.task || (s.running ? 'Focus time' : 'Ready when you are') : 'Quill down. A break.';
+    $('wTask').title = onTask ? s.task : ''; // the whole name on hover when it's cut short
+    $('wDone').hidden = !onTask;
+    $('wDone').checked = false;
+    $('wDone').setAttribute('aria-label', onTask ? `Done: ${s.task}` : 'Done');
+    $('wNext').textContent = onTask && s.next ? `Then: ${s.next}` : '';
     $('wBuddies').textContent = s.buddies ? `${s.buddies} ${s.buddies === 1 ? 'buddy' : 'buddies'} working with you` : '';
     $('wBuddy').setAttribute('aria-label', `Your ${beastShort(s.beast)} at its desk`);
     desk.setBeast({ beast: s.beast, coat: s.coat, pose: POSE[s.status] || 'idle' });
     tick();
+    requestAnimationFrame(reportButtons); // labels change width
   },
 };
 
+// The Mac app drags the window from anywhere except these (mac/.../WidgetPanel.swift).
+let lastButtons = '';
+function reportButtons() {
+  const rects = [...document.querySelectorAll('button, a, input, select, textarea')]
+    .filter((b) => b.offsetParent !== null)
+    .map((b) => { const r = b.getBoundingClientRect(); return { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) }; });
+  const key = JSON.stringify(rects);
+  if (key === lastButtons) return;
+  lastButtons = key;
+  handler?.postMessage({ type: 'widgetHotspots', rects });
+}
+window.addEventListener('resize', reportButtons);
+document.fonts?.ready.then(reportButtons);
+
+$('wDone').addEventListener('change', () => {
+  if (current?.taskId) handler?.postMessage({ type: 'command', name: 'completeTask', id: current.taskId });
+});
 $('wToggle').addEventListener('click', () => send('toggle'));
 $('wSkip').addEventListener('click', () => send('skip'));
 $('wOpen').addEventListener('click', () => send('showMain'));
 setInterval(tick, 250);
 // Ready: ask the Mac app for the current state (it may have been sent before this page loaded).
 handler?.postMessage({ type: 'widgetReady' });
+reportButtons();
